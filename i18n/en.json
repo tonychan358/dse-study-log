@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "Study Log",
+    "name": "夠鐘溫書",
     "loading": "Loading…"
   },
   "login": {
@@ -11,13 +11,13 @@
     "tipLogBody": "done today",
     "tipHoursTitle": "Track",
     "tipHoursBody": "Track every hour you study",
-    "id": "Student ID",
+    "id": "Account",
     "password": "Password",
     "submit": "Sign in",
     "days": "days",
     "credit": "Lonely Chan & AI 共同開發",
-    "errorEmpty": "Please enter your ID and password",
-    "errorWrong": "Incorrect ID or password",
+    "errorEmpty": "Please enter your account and password",
+    "errorWrong": "Incorrect account or password",
     "expired": "Your session has expired. Please sign in again.",
     "quoteKicker": "Daily quote"
   },
@@ -78,7 +78,10 @@
     "themeDark": "Dark",
     "changePassword": "Change password",
     "newPassword": "New password",
-    "saved": "Saved"
+    "saved": "Saved",
+    "langSwitchTo": "Switch to 中文",
+    "themeToDark": "Switch to dark theme",
+    "themeToLight": "Switch to light theme"
   },
   "teacher": {
     "overview": "Class Overview",
@@ -109,10 +112,17 @@
     "synced": "All synced"
   },
   "install": {
-    "prompt": "Add Study Log to your home screen and use it like an app.",
+    "title": "Add to home screen",
+    "prompt": "Add 夠鐘溫書 to your home screen and use it like a standalone app.",
     "android": "Install",
-    "ios": "In Safari, tap Share → Add to Home Screen",
-    "dismiss": "Later"
+    "dismiss": "Later",
+    "close": "Close",
+    "iosTitle": "How to add it on iPhone / iPad",
+    "iosStep1": "Tap the Share button at the bottom of the browser",
+    "iosStep2": "Scroll down and choose Add to Home Screen",
+    "hint": "Choose Install or Add to Home Screen from your browser menu.",
+    "cancelled": "Installation was cancelled. You can try again at any time.",
+    "installed": "Added to your home screen — open it from the icon."
   },
   "share": {
     "button": "Send to teacher",

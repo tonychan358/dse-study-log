@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "溫習日誌",
+    "name": "夠鐘溫書",
     "loading": "載入中…"
   },
   "login": {
@@ -11,13 +11,13 @@
     "tipLogBody": "今日畢",
     "tipHoursTitle": "記錄",
     "tipHoursBody": "記錄你的每一小時",
-    "id": "學號",
+    "id": "帳戶",
     "password": "密碼",
     "submit": "登入",
     "days": "日",
     "credit": "Lonely Chan & AI 共同開發",
-    "errorEmpty": "請輸入學號和密碼",
-    "errorWrong": "學號或密碼不正確",
+    "errorEmpty": "請輸入帳戶和密碼",
+    "errorWrong": "帳戶或密碼不正確",
     "expired": "登入已過期，請重新登入",
     "quoteKicker": "每日一句"
   },
@@ -78,7 +78,10 @@
     "themeDark": "深色",
     "changePassword": "更改密碼",
     "newPassword": "新密碼",
-    "saved": "已儲存"
+    "saved": "已儲存",
+    "langSwitchTo": "切換至 English",
+    "themeToDark": "切換至深色主題",
+    "themeToLight": "切換至淺色主題"
   },
   "teacher": {
     "overview": "全班總覽",
@@ -109,10 +112,17 @@
     "synced": "已全部同步"
   },
   "install": {
-    "prompt": "把溫習日誌加到主畫面，用起來就像一個 app。",
+    "title": "加到主畫面",
+    "prompt": "把「夠鐘溫書」加到主畫面，使用時就像一個獨立的應用程式。",
     "android": "安裝",
-    "ios": "在 Safari 按「分享」→「加至主畫面」",
-    "dismiss": "稍後再說"
+    "dismiss": "稍後再說",
+    "close": "關閉",
+    "iosTitle": "iPhone／iPad 加入步驟",
+    "iosStep1": "按瀏覽器下方的「分享」按鈕",
+    "iosStep2": "向下捲動，選擇「加至主畫面」",
+    "hint": "在瀏覽器選單中選擇「安裝」或「加至主畫面」。",
+    "cancelled": "安裝已取消，你隨時可以再試一次。",
+    "installed": "已加到主畫面，可從主畫面圖示開啟。"
   },
   "share": {
     "button": "報給老師",

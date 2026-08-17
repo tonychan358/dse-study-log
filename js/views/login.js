@@ -16,16 +16,80 @@
  * 行為完全不變：邏輯（ensurePublicConfig／daysUntil／pickQuote／表單提交／
  * 語言主題切換／安裝提示）原封不動。所有依賴後端嘅資料（倒數、學年、
  * 語錄）一律 graceful degrade：攞唔到就唔顯示，表單照用。
+ *
+ * 2026-08-17 第三輪（SIR 睇完改版後的四項指示，本檔負責其中兩項）：
+ *   3. 語言／主題兩個掣改成**淨圖示**（行內 SVG，見下面圖示區）。tap
+ *      target 維持 44×44（--tap），aria-label 原封不動（文字冇咗之後，
+ *      aria-label 就係螢幕閱讀器使用者唯一攞到嘅說明），另加 title 令
+ *      桌面滑鼠停留時有提示。圖示會跟狀態換（月／日、A／文）。
+ *   4.「用戶加至主畫面可唔可以用一個 pop up button 連去幫佢做」——原本
+ *      淨係一句文字提示，改成一個安裝彈出卡：Chromium 上係真・一撳安裝
+ *      （用收起咗嘅 beforeinstallprompt），iOS 上係圖解步驟（Apple 冇提
+ *      供任何 API，網頁無論如何觸發唔到「加入主畫面」，所以唔扮）。四種
+ *      形態由 js/lib/install.js 的純函式 installUiMode() 決定，呢個檔淨
+ *      係負責畫。
  */
 import { call } from '../api.js';
 import { state, saveSession, applyTheme, loadPublicConfig } from '../state.js';
 import { loadLang, currentLang, t } from '../i18n.js';
 import { hkToday } from '../lib/dates.js';
 import {
-  isStandalone, shouldShowInstallHint, isIosDevice,
-  isInstallHintDismissed, dismissInstallHint,
+  isStandalone, isIosDevice, isInstallHintDismissed, dismissInstallHint,
+  installUiMode, hasInstallPrompt, isInstalledThisSession,
+  triggerInstall, subscribeInstallState,
 } from '../lib/install.js';
 import { navigate } from '../main.js';
+
+/* ------------------------------------------------------------------ 圖示
+ *
+ * 全部係行內 SVG：冇 icon font、冇 CDN、冇 emoji（emoji 喺唔同平台／唔同
+ * 字型會變樣，亦唔跟主題色）。每個都用 currentColor，所以光暗主題自動跟
+ * 按鈕的文字色走，唔使各寫一套。
+ *
+ * 一律加 aria-hidden="true" + focusable="false"：圖示本身唔應該被螢幕
+ * 閱讀器讀出（讀「圖形」冇意義），亦唔應該喺 IE/舊 Edge 攞到焦點。文字
+ * 說明百分百由外層 <button> 的 aria-label 提供。
+ */
+
+/** 語言切換圖示：地球圈 + **目標語言**的字符（同原本文字掣一致——原本
+ *  中文介面顯示 "English"，即撳落去會變成的語言）。中文介面顯示 A（拉丁
+ *  字母＝英文），英文介面顯示 文。 */
+function iconLang(glyph) {
+  return `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden="true" focusable="false">
+      <circle cx="12" cy="12" r="9.1" stroke="currentColor" stroke-width="1.6"/>
+      <path d="M4.9 6.4h14.2M4.9 17.6h14.2" stroke="currentColor" stroke-width="1.1" opacity="0.45"/>
+      <text class="icon-glyph" x="12" y="15.5" text-anchor="middle" font-size="9.5" fill="currentColor">${glyph}</text>
+    </svg>`;
+}
+
+/** 月亮＝撳落去轉深色（現時淺色）。 */
+const ICON_MOON = `<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true" focusable="false">
+    <path d="M20.4 14.7A8.7 8.7 0 0 1 9.3 3.6a8.7 8.7 0 1 0 11.1 11.1z"/>
+  </svg>`;
+
+/** 太陽＝撳落去轉淺色（現時深色）。 */
+const ICON_SUN = `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" focusable="false">
+    <circle cx="12" cy="12" r="4.1"/>
+    <path d="M12 2.6v2.5M12 18.9v2.5M4.36 4.36l1.77 1.77M17.87 17.87l1.77 1.77M2.6 12h2.5M18.9 12h2.5M4.36 19.64l1.77-1.77M17.87 6.13l1.77-1.77"/>
+  </svg>`;
+
+/** 「加至主畫面」＝圓角方框加十字（安裝提示的標題圖示）。 */
+const ICON_ADD_HOME = `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+    <rect x="3.4" y="3.4" width="17.2" height="17.2" rx="4.6"/>
+    <path d="M12 8.4v7.2M8.4 12h7.2"/>
+  </svg>`;
+
+/** iOS「分享」符號（方框 + 向上箭嘴）——iOS 步驟一要撳嘅就係佢，畫出嚟
+ *  比寫「按分享」清楚得多。 */
+const ICON_IOS_SHARE = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+    <path d="M12 3.2v11.3"/>
+    <path d="M8.3 6.9 12 3.2l3.7 3.7"/>
+    <path d="M7.2 9.9H5.6A1.9 1.9 0 0 0 3.7 11.8v7.1a1.9 1.9 0 0 0 1.9 1.9h12.8a1.9 1.9 0 0 0 1.9-1.9v-7.1a1.9 1.9 0 0 0-1.9-1.9h-1.6"/>
+  </svg>`;
+
+const ICON_CLOSE = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false">
+    <path d="M6.6 6.6 17.4 17.4M17.4 6.6 6.6 17.4"/>
+  </svg>`;
 
 // T11 fix round 1：全新瀏覽器（未曾登入過、state.config 是空物件）沒有任
 // 何管道知道 dse_start_date／語錄——一律經 ensurePublicConfig() 背景讀取
@@ -34,6 +98,9 @@ import { navigate } from '../main.js';
 // 多次時重複發同一個請求；同一個 module 生命週期內只嘗試一次，成功與否
 // 都不重試——重試不是這輪要處理的需求，見 loadPublicConfig() 的文件註解。
 let publicConfigAttempted = false;
+
+// 安裝狀態訂閱的退訂函式（每次 renderLogin() 開頭先退舊嘅，見下面）。
+let unsubscribeInstall = null;
 
 function ensurePublicConfig(root) {
   if (state.config && state.config.dse_start_date) return; // 已有快取（登入過／已抓過），不用再攞
@@ -127,18 +194,85 @@ function pickQuote(config) {
   }
 }
 
+/**
+ * 安裝彈出卡的 HTML。mode 由 installUiMode() 決定（'hidden'／'button'／
+ * 'ios'／'hint'），呢度只負責畫，唔再自己判斷平台。
+ *
+ * 刻意**唔用** position:fixed 的浮層／bottom sheet：需求明寫「must not
+ * trap focus or block the login form」，而固定定位嘅卡喺矮螢幕（橫向、
+ * 細機）會蓋住登入掣。改為留喺文件流入面、用陰影同動畫做出「彈出嚟」嘅
+ * 感覺，永遠唔可能遮住表單，亦唔需要 focus trap（撳 Tab 順住次序走出去
+ * 就得，唔會被困）。
+ *
+ * @param {string} note 撳完安裝掣之後嘅回饋句（取消／不可用），冇就傳空字串。
+ */
+function installPopMarkup(mode, note) {
+  if (mode === 'hidden') return '';
+
+  const head = `
+    <button type="button" class="install-pop-close" id="install-close"
+            aria-label="${t('install.close')}" title="${t('install.close')}">${ICON_CLOSE}</button>
+    <div class="install-pop-head">
+      <span class="install-pop-icon">${ICON_ADD_HOME}</span>
+      <div class="install-pop-headtext">
+        <div class="install-pop-title">${t('install.title')}</div>
+        <p class="install-pop-body">${t('install.prompt')}</p>
+      </div>
+    </div>`;
+
+  // Chromium：真・一撳安裝。撳落去會彈系統原生安裝對話框。
+  const button = `
+    <div class="install-pop-actions">
+      <button type="button" class="btn btn-primary" id="install-go">${t('install.android')}</button>
+      <button type="button" class="btn" id="install-later">${t('install.dismiss')}</button>
+    </div>`;
+
+  // iOS Safari：冇任何 API 可以代撳，唯有畫清楚兩步。步驟圖示同 iOS 上
+  // 真正見到嘅符號一致（分享符號、加號方框），唔止一行乾文字。
+  const ios = `
+    <div class="install-steps-title">${t('install.iosTitle')}</div>
+    <ol class="install-steps">
+      <li class="install-step">
+        <span class="install-step-num">1</span>
+        <span class="install-step-glyph">${ICON_IOS_SHARE}</span>
+        <span class="install-step-text">${t('install.iosStep1')}</span>
+      </li>
+      <li class="install-step">
+        <span class="install-step-num">2</span>
+        <span class="install-step-glyph">${ICON_ADD_HOME}</span>
+        <span class="install-step-text">${t('install.iosStep2')}</span>
+      </li>
+    </ol>
+    <div class="install-pop-actions">
+      <button type="button" class="btn" id="install-later">${t('install.dismiss')}</button>
+    </div>`;
+
+  // 其餘瀏覽器（桌面 Safari／Firefox…）：冇 beforeinstallprompt 又唔係
+  // iOS，只可以老實講一句「去瀏覽器選單揀安裝」。
+  const hint = `
+    <p class="install-pop-hint">${t('install.hint')}</p>
+    <div class="install-pop-actions">
+      <button type="button" class="btn" id="install-later">${t('install.dismiss')}</button>
+    </div>`;
+
+  const bodyByMode = { button, ios, hint };
+  const noteHtml = note ? `<p class="install-pop-note" role="status">${note}</p>` : '';
+
+  return `<section class="install-pop" aria-label="${t('install.title')}">`
+    + head + (bodyByMode[mode] || hint) + noteHtml + '</section>';
+}
+
 export function renderLogin(root) {
   const config = state.config || {};
   const quote = pickQuote(config);
   const range = schoolYearRange(config.dse_start_date);
   const theme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
   const notice = state.params && state.params.notice;
+  const lang = currentLang();
 
-  const showInstallHint = shouldShowInstallHint({
-    standalone: isStandalone(),
-    dismissed: isInstallHintDismissed(),
-  });
-  const isIos = isIosDevice();
+  // 上一次 render 留低嘅訂閱要先退掉，否則每切換一次語言／主題就會多一
+  // 個指住已被替換 DOM 的 callback。
+  if (unsubscribeInstall) { unsubscribeInstall(); unsubscribeInstall = null; }
 
   root.innerHTML = `
     <div class="container">
@@ -150,9 +284,17 @@ export function renderLogin(root) {
             <div class="login-brand-year" id="login-school-year"${range ? '' : ' hidden'}>${range ? t('login.schoolYear', range) : ''}</div>
             <h1 class="login-brand-name">${t('login.title')}</h1>
           </div>
+          <!-- 淨圖示掣（SIR 指示）。aria-label 保留原本 i18n 字串——文字
+               冇咗之後佢就係螢幕閱讀器使用者唯一嘅說明；title 另外講埋
+               「撳落去會變成點」，桌面滑鼠停留就見到。 -->
           <div class="login-tools">
-            <button type="button" class="btn" id="lang-toggle" aria-label="${t('settings.language')}">${currentLang() === 'zh' ? 'English' : '中文'}</button>
-            <button type="button" class="btn" id="theme-toggle" aria-label="${t('settings.theme')}">${theme === 'dark' ? t('settings.themeLight') : t('settings.themeDark')}</button>
+            <button type="button" class="btn btn-icon" id="lang-toggle"
+                    aria-label="${t('settings.language')}" title="${t('settings.langSwitchTo')}"
+                    >${iconLang(lang === 'zh' ? 'A' : '文')}</button>
+            <button type="button" class="btn btn-icon" id="theme-toggle"
+                    aria-label="${t('settings.theme')}"
+                    title="${theme === 'dark' ? t('settings.themeToLight') : t('settings.themeToDark')}"
+                    >${theme === 'dark' ? ICON_SUN : ICON_MOON}</button>
           </div>
         </div>
 
@@ -191,13 +333,10 @@ export function renderLogin(root) {
           </div>
         </div>
 
-        ${showInstallHint ? `
-          <div class="install-hint">
-            <p>${t('install.prompt')}</p>
-            ${isIos ? `<p style="color:var(--muted);">${t('install.ios')}</p>` : ''}
-            <button type="button" id="install-hint-dismiss" class="btn" style="margin-top:2px;padding:6px 14px;min-height:36px;font-size:0.8125rem;">${t('install.dismiss')}</button>
-          </div>
-        ` : ''}
+        <!-- 安裝彈出卡只重畫呢一格（見下面 paintInstall()）：
+             beforeinstallprompt 隨時會喺使用者打緊帳密時到達，整份重畫
+             會抹走佢啱啱打嘅嘢。 -->
+        <div id="install-slot"></div>
 
         <p class="login-credit">${t('login.credit')}</p>
       </div>
@@ -256,13 +395,57 @@ export function renderLogin(root) {
     }
   });
 
-  const installDismissBtn = root.querySelector('#install-hint-dismiss');
-  if (installDismissBtn) {
-    installDismissBtn.addEventListener('click', () => {
-      dismissInstallHint();
-      renderLogin(root);
+  // ---------------------------------------------------------- 安裝彈出卡
+  const slot = root.querySelector('#install-slot');
+
+  /** 只重畫 #install-slot 一格。note 係撳完安裝掣之後嘅回饋句（可空）。 */
+  function paintInstall(note = '') {
+    const mode = installUiMode({
+      standalone: isStandalone(),
+      dismissed: isInstallHintDismissed(),
+      canPrompt: hasInstallPrompt(),
+      ios: isIosDevice(),
+      installed: isInstalledThisSession(),
     });
+    slot.innerHTML = installPopMarkup(mode, note);
+
+    const closeBtn = slot.querySelector('#install-close');
+    const laterBtn = slot.querySelector('#install-later');
+    // 「×」同「稍後再說」做同一件事：記住使用者唔想再見到（同原本嘅提示
+    // 一樣寫入 localStorage），下次開都唔會再彈。
+    [closeBtn, laterBtn].forEach((btn) => btn && btn.addEventListener('click', () => {
+      dismissInstallHint();
+      paintInstall();
+    }));
+
+    const goBtn = slot.querySelector('#install-go');
+    if (goBtn) {
+      goBtn.addEventListener('click', async () => {
+        goBtn.disabled = true;
+        const result = await triggerInstall();
+        if (!root.isConnected) return;          // 期間已經導去別處
+        if (result === 'accepted') {
+          slot.innerHTML = `<p class="install-done" role="status">${t('install.installed')}</p>`;
+          return;
+        }
+        // 使用者撳咗取消（或事件已失效）。beforeinstallprompt 用完即棄，
+        // 所以呢刻會退回 'hint' 形態；Chromium 之後符合條件時會再發一次
+        // 事件，訂閱收到就會自動變返「安裝」掣。
+        paintInstall(result === 'dismissed' ? t('install.cancelled') : t('install.hint'));
+      });
+    }
   }
+
+  paintInstall();
+  // beforeinstallprompt／appinstalled 到達時只更新呢一格。畫面已經被
+  // 換走（導去其他 view）就自己退訂，唔好向已 detach 嘅節點寫嘢。
+  unsubscribeInstall = subscribeInstallState(() => {
+    if (!root.isConnected) {
+      if (unsubscribeInstall) { unsubscribeInstall(); unsubscribeInstall = null; }
+      return;
+    }
+    paintInstall();
+  });
 
   ensurePublicConfig(root);
 }

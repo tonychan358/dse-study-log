@@ -3,10 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>溫習日誌</title>
+  <!-- 應用程式名稱＝主畫面圖示下面顯示嘅名（SIR 2026-08-17 定名「夠鐘
+       溫書」）。畫面上嘅品牌區塊係另一回事，繼續用「2026 - 2027」／
+       「陳老師 HKDSE 衝刺計劃」，兩者刻意唔同。 -->
+  <title>夠鐘溫書</title>
 
-  <!-- PWA manifest half only（無 Service Worker，見 Task 19 才加，理由：
-       app 仍在開發中，SW 快取住舊畫面會俾老師誤以為壞咗）。
+  <!-- PWA：manifest + Service Worker（sw.js，2026-08-17 加）。SW 行網路
+       優先，唔會快取住舊畫面（見 sw.js 頭註）；佢同時係 Chromium 發出
+       beforeinstallprompt 的先決條件，冇佢就冇「一撳安裝」掣。
        start_url / scope 刻意用相對路徑 "./"：manifest 的相對 URL 係以
        manifest 檔案本身所在位置為 base，唔係頁面 URL。manifest.webmanifest
        喺兩邊部署都放喺 app 根目錄——GitHub Pages 係
@@ -21,7 +25,7 @@
        tag 先會喺「加至主畫面」後隱藏網址列、用 standalone 模式打開。 -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="溫習日誌">
+  <meta name="apple-mobile-web-app-title" content="夠鐘溫書">
 
   <link rel="stylesheet" href="./css/tokens.css">
   <link rel="stylesheet" href="./css/app.css">

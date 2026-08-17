@@ -1,6 +1,6 @@
 {
-  "name": "溫習日誌",
-  "short_name": "溫習日誌",
+  "name": "夠鐘溫書",
+  "short_name": "夠鐘溫書",
   "description": "HKDSE 學生每日溫習時數、心情與反思記錄。",
   "start_url": "./",
   "scope": "./",

@@ -102,6 +102,32 @@ a {
   color: var(--on-danger);
 }
 
+/* Icon-only button — square, exactly one --tap (44px) on both axes so the
+   tap target never shrinks below the minimum just because the label is gone.
+   The accessible name lives entirely in the button's aria-label (the SVG
+   inside is aria-hidden). */
+.btn-icon {
+  width: var(--tap);
+  height: var(--tap);
+  min-width: var(--tap);
+  min-height: var(--tap);
+  padding: 0;
+  flex: none;
+}
+
+.btn-icon svg {
+  display: block;
+  flex: none;
+}
+
+/* Typographic glyph inside an inline SVG icon (the 文/A language mark).
+   font-family has to come from CSS — a `font-family="var(--font-body)"`
+   presentation attribute on <text> is not resolved by any browser. */
+.icon-glyph {
+  font-family: var(--font-body);
+  font-weight: 700;
+}
+
 /* ---------- Chips (DESIGN.md §Badges & Pills — pill radius) ---------- */
 
 .chip {
@@ -505,6 +531,15 @@ a {
   font-size: 0.8125rem;
 }
 
+/* Both login toggles are icon-only (SIR, 2026-08-17), so they override the
+   compact padding above with a fixed 44x44 square. Must stay AFTER the rule
+   above — same specificity (0,2,0), so source order decides. */
+.login-tools .btn-icon {
+  padding: 0;
+  width: var(--tap);
+  height: var(--tap);
+}
+
 /* Hero sits on its own (not inside a .bento) so that hiding it while the
    countdown data is still loading leaves no gap at all. */
 .login-hero {
@@ -515,18 +550,178 @@ a {
   margin-top: 22px;
 }
 
-.install-hint {
-  margin-top: 14px;
-  padding: 12px 14px;
-  border-radius: var(--radius);
-  background: var(--surface-elevated);
-  font-size: 0.8125rem;
-  color: var(--text-secondary);
-  line-height: 1.6;
+/* ---------- Install pop-up (login screen) ----------
+   A raised card that "pops" into the login flow, NOT a fixed overlay or
+   bottom sheet: it must never cover the login form (short/landscape screens
+   would have the sheet sitting on top of the submit button) and must never
+   trap focus. Elevation + the slide-in below carry the pop-up feel instead
+   of position:fixed. */
+
+.install-pop {
+  position: relative;
+  margin-top: 18px;
+  padding: 16px 16px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+  animation: install-pop-in 0.22s ease-out both;
 }
 
-.install-hint p {
-  margin: 0 0 4px;
+@keyframes install-pop-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* 44x44 hit area, but visually just a small ✕ in the corner. */
+.install-pop-close {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap);
+  height: var(--tap);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.install-pop-close:hover {
+  color: var(--text);
+  background: var(--surface-elevated);
+}
+
+.install-pop-close:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* padding-right keeps the title clear of the close button's 44px square. */
+.install-pop-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding-right: 38px;
+}
+
+.install-pop-icon {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.install-pop-headtext {
+  min-width: 0;   /* lets the copy wrap instead of widening the flex row */
+}
+
+.install-pop-title {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--text);
+}
+
+.install-pop-body {
+  margin: 4px 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.install-pop-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.install-pop-actions .btn {
+  flex: 1;
+  padding: 10px 14px;
+  font-size: 0.875rem;
+}
+
+.install-pop-hint,
+.install-pop-note {
+  margin: 12px 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+/* -- iOS: the two illustrated steps (no API exists; this is the honest
+      maximum a web page can do on iOS Safari) -- */
+
+.install-steps-title {
+  margin-top: 14px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.install-steps {
+  display: grid;
+  gap: 8px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.install-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--surface-elevated);
+}
+
+.install-step-num {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.install-step-glyph {
+  flex: none;
+  display: inline-flex;
+  color: var(--accent);
+}
+
+.install-step-text {
+  min-width: 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.install-done {
+  margin: 18px 0 0;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  background: var(--success-soft);
+  color: var(--success);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-align: center;
 }
 
 .login-credit {
