@@ -1,0 +1,109 @@
+/*
+ * Design tokens for dse-study-log — derived from ../DESIGN.md (Warm Editorial).
+ * Light values are the theme's literal hex codes where they pass WCAG AA;
+ * where they don't (see task-10-report.md §contrast), a nearby shade from the
+ * same DESIGN.md swatch (e.g. primary-600 instead of primary-500) is promoted
+ * to the base token instead. Decorative-only values (borders, chip fills)
+ * keep the literal DESIGN.md hex since non-text UI components only need 3:1.
+ *
+ * Dark theme is NOT specified in DESIGN.md beyond bg-dark/text-inverse — it is
+ * derived here to preserve the warm-brown character (never cool/blue-grey)
+ * while re-checking every text/background pair against WCAG AA. See report
+ * for full derivation notes.
+ *
+ * Theme switch: document.documentElement.dataset.theme = 'dark' | 'light'
+ */
+
+:root {
+  /* Surfaces (DESIGN.md §Colors > Backgrounds) */
+  --bg: #FDFBF7;              /* bg-base — warm off-white canvas, never pure white */
+  --surface: #F5EFE6;         /* bg-surface — cards, sidebars */
+  --surface-elevated: #EDE6D9;/* bg-elevated — hover rows, selected items */
+
+  /* Text (DESIGN.md §Colors > Text) */
+  --text: #1C1410;            /* text-primary — near-black warm brown */
+  --text-secondary: #5C4F42;  /* text-secondary — warm mid-brown */
+  --muted: #736558;           /* darkened from DESIGN.md text-muted #9B8E83 (3.08:1 fails);
+                                  this shade reaches 5.45:1 on --bg / 4.92:1 on --surface */
+
+  /* Borders (DESIGN.md §Borders) */
+  --border: #D4C5B2;          /* border-default — card outlines, input borders */
+  --border-subtle: #EDE0D0;   /* border-subtle — barely visible dividers */
+  --border-strong: #B8A897;   /* border-strong — table lines, section separators */
+
+  /* Interactive — Terracotta (DESIGN.md §Colors > Primary) */
+  --accent: #A84F38;          /* promoted from primary-500 #C4644A (fails as button/link
+                                  text, see report); this is DESIGN.md's own primary-600 */
+  --accent-hover: #8C3E2A;    /* primary-700 — hover/pressed, per DESIGN.md button spec */
+  --accent-soft: #F7DED5;     /* primary-100 — chip[aria-pressed] fill, tag-featured bg */
+  --accent-line: #C4644A;     /* primary-500 literal hex — decorative use only
+                                  (blockquote border, chip-pressed border): non-text UI
+                                  components need only 3:1, and this reaches 3.86:1 on --bg */
+  --on-accent: #FFFFFF;       /* label colour placed on top of --accent */
+
+  /* Semantic */
+  --danger: #B23A2A;          /* deviates from DESIGN.md's literal "error = primary-500"
+                                  so destructive actions read distinct from the primary CTA
+                                  and clear 4.5:1 as both text and button label (see report) */
+  --on-danger: #FFFFFF;
+  --success: #557D4C;         /* accent-600 (sage, darkened) — text-safe at 4.59:1 */
+  --success-soft: #DDE8D8;    /* accent-100 — badge backgrounds */
+  --on-success: #FFFFFF;
+  --warn: #C49A2A;            /* warning amber, literal DESIGN.md hex — status-bar offline bg */
+  --warn-text: #8A6A1D;       /* darkened amber for inline warning text on --bg (4.88:1) */
+  --on-warn: #1C1410;         /* dark text reads correctly on the light amber --warn (6.92:1) */
+
+  /* Shape */
+  --radius: 8px;              /* radius-md — buttons, chips, inputs */
+  --radius-lg: 12px;          /* radius-lg — cards, panels */
+  --gap: 12px;                /* space-3 */
+  --tap: 44px;                /* minimum tap target, both axes */
+
+  /* Elevation — warm-tinted shadows only, per DESIGN.md (no cool/blue shadows) */
+  --shadow-sm: 0 2px 8px rgba(140, 80, 50, 0.08);
+  --shadow-md: 0 4px 16px rgba(140, 80, 50, 0.12);
+
+  /* Typography (DESIGN.md §Typography — serif headings, sans-serif UI chrome).
+     No web font is loaded (no CDN, offline-first PWA); system stacks approximate
+     the serif/sans pairing and lead with Traditional-Chinese-aware CJK fallbacks. */
+  --font-heading: Georgia, 'Noto Serif TC', 'Songti TC', 'PMingLiU', serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang TC',
+    'Microsoft JhengHei', 'Noto Sans TC', sans-serif;
+}
+
+:root[data-theme="dark"] {
+  /* Surfaces — warm dark brown, never neutral/blue-grey */
+  --bg: #1C1410;              /* bg-dark, literal DESIGN.md hex */
+  --surface: #2A2019;         /* lighter warm brown, one step up from --bg for card separation */
+  --surface-elevated: #362A21;
+
+  /* Text */
+  --text: #FDFBF7;            /* text-inverse, literal DESIGN.md hex */
+  --text-secondary: #D9C9BA;  /* light warm tan, 11.25:1 on --bg */
+  --muted: #B8A897;           /* border-strong's hue re-used as muted text, 7.85:1 on --bg */
+
+  /* Borders */
+  --border: #4A3B2E;
+  --border-subtle: #3A2E24;
+  --border-strong: #5C4A3A;
+
+  /* Interactive — lightened terracotta so it still reads on a dark canvas */
+  --accent: #E8A898;          /* primary-300 — 9.06:1 on --bg, used for links and button fill */
+  --accent-hover: #DC8A70;
+  --accent-soft: #4A2E22;     /* dark warm brown-red — chip[aria-pressed] fill */
+  --accent-line: #E8A898;     /* same as --accent; needs no separate literal shade here */
+  --on-accent: #1C1410;       /* dark text on the lightened accent (white fails at 2.64:1) */
+
+  /* Semantic */
+  --danger: #E2705A;          /* 5.79:1 on --bg */
+  --on-danger: #1C1410;       /* white fails at 3.13:1; dark text passes at 5.79:1 */
+  --success: #8FBF82;         /* 8.59:1 on --bg */
+  --success-soft: #2C3A24;
+  --on-success: #1C1410;
+  --warn: #E0B84A;            /* 9.62:1 on --bg */
+  --warn-text: #E0B84A;       /* same shade already reads fine as inline text here */
+  --on-warn: #1C1410;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.28);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.34);
+}

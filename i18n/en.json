@@ -1,0 +1,100 @@
+{
+  "app": { "name": "Study Log", "loading": "Loading…" },
+  "login": {
+    "title": "Study Log",
+    "id": "Student ID",
+    "password": "Password",
+    "submit": "Sign in",
+    "countdown": "Days to HKDSE",
+    "days": "days",
+    "errorEmpty": "Please enter your ID and password",
+    "errorWrong": "Incorrect ID or password",
+    "expired": "Your session has expired. Please sign in again."
+  },
+  "nav": { "calendar": "Calendar", "report": "My Weekly Report", "settings": "Settings", "class": "Class Overview", "logout": "Sign out" },
+  "calendar": {
+    "prev": "Previous month",
+    "next": "Next month",
+    "totalHours": "{hours} h",
+    "pending": "Pending"
+  },
+  "day": {
+    "subject": "Subject",
+    "hours": "Hours",
+    "custom": "Custom",
+    "content": "What did you study?",
+    "addItem": "Add entry",
+    "summary": "{count} entries · {hours} hours today",
+    "mood": "How was today?",
+    "reflection": "Write a line or two about today…",
+    "save": "Save",
+    "clear": "Clear this day",
+    "confirmClear": "Clear all entries for this day?",
+    "errorHours": "Hours must be between 0.25 and 12, in steps of 0.25",
+    "errorNoSubject": "Please choose a subject first"
+  },
+  "mood": { "happy": "Good", "ok": "Okay", "tired": "Tired", "frustrated": "Frustrated", "fired": "Fired up" },
+  "report": {
+    "title": "My Weekly Report",
+    "weekTotal": "Total hours this week",
+    "vsLastWeek": "vs last week",
+    "noComparison": "No records last week",
+    "bySubject": "By subject",
+    "streak": "Streak",
+    "streakUnit": "days",
+    "leastTouched": "Least studied this week",
+    "reflections": "This week's reflections",
+    "noReflection": "No reflections this week",
+    "empty": "No records this week"
+  },
+  "settings": {
+    "title": "Settings",
+    "mySubjects": "My HKDSE subjects",
+    "language": "Language",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "changePassword": "Change password",
+    "newPassword": "New password",
+    "saved": "Saved"
+  },
+  "teacher": {
+    "overview": "Class Overview",
+    "student": "Student",
+    "weekHours": "Hours this week",
+    "vsLast": "vs last week",
+    "lastRecord": "Last record",
+    "reflections": "Reflections",
+    "mainSubjects": "Main subjects",
+    "today": "Today",
+    "daysAgo": "{n} days ago",
+    "never": "Never",
+    "flagNoRecord": "No records for {n} consecutive days",
+    "flagDrop": "Hours dropped more than {n}% from last week",
+    "flagNoReflection": "No reflections this week",
+    "reportTitle": "Study Report — {name}",
+    "trend": "Hours trend",
+    "distribution": "By subject",
+    "history": "Reflection history",
+    "comment": "Teacher's comment",
+    "saveComment": "Save comment",
+    "print": "Print"
+  },
+  "offline": {
+    "offline": "Offline",
+    "pending": "{n} day(s) pending",
+    "retry": "Retry",
+    "synced": "All synced"
+  },
+  "install": {
+    "prompt": "Add Study Log to your home screen and use it like an app.",
+    "android": "Install",
+    "ios": "In Safari, tap Share → Add to Home Screen",
+    "dismiss": "Later"
+  },
+  "share": {
+    "button": "Send to teacher",
+    "copied": "Copied — paste it into WhatsApp",
+    "manual": "Please copy the text below"
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "app": { "name": "溫習日誌", "loading": "載入中…" },
+  "login": {
+    "title": "溫習日誌",
+    "id": "學號",
+    "password": "密碼",
+    "submit": "登入",
+    "countdown": "距離 DSE 開考",
+    "days": "日",
+    "errorEmpty": "請輸入學號和密碼",
+    "errorWrong": "學號或密碼不正確",
+    "expired": "登入已過期，請重新登入"
+  },
+  "nav": { "calendar": "月曆", "report": "我的週報", "settings": "設定", "class": "全班總覽", "logout": "登出" },
+  "calendar": {
+    "prev": "上個月",
+    "next": "下個月",
+    "totalHours": "{hours} 小時",
+    "pending": "待同步"
+  },
+  "day": {
+    "subject": "科目",
+    "hours": "時數",
+    "custom": "自訂",
+    "content": "溫習了什麼？",
+    "addItem": "加一筆",
+    "summary": "今日 {count} 筆・共 {hours} 小時",
+    "mood": "今日感受",
+    "reflection": "今日溫習得如何？寫一兩句…",
+    "save": "儲存",
+    "clear": "清空本日",
+    "confirmClear": "確定清空本日所有記錄？",
+    "errorHours": "時數須介乎 0.25 至 12，且為 0.25 的倍數",
+    "errorNoSubject": "請先選擇科目"
+  },
+  "mood": { "happy": "開心", "ok": "普通", "tired": "疲累", "frustrated": "沮喪", "fired": "衝勁十足" },
+  "report": {
+    "title": "我的週報",
+    "weekTotal": "本週總時數",
+    "vsLastWeek": "較上週",
+    "noComparison": "上週沒有記錄",
+    "bySubject": "各科分佈",
+    "streak": "連續打卡",
+    "streakUnit": "日",
+    "leastTouched": "本週最少接觸",
+    "reflections": "本週反思",
+    "noReflection": "本週未寫過反思",
+    "empty": "本週未有記錄"
+  },
+  "settings": {
+    "title": "設定",
+    "mySubjects": "我應考的科目",
+    "language": "語言",
+    "theme": "主題",
+    "themeLight": "淺色",
+    "themeDark": "深色",
+    "changePassword": "更改密碼",
+    "newPassword": "新密碼",
+    "saved": "已儲存"
+  },
+  "teacher": {
+    "overview": "全班總覽",
+    "student": "學生",
+    "weekHours": "本週時數",
+    "vsLast": "較上週",
+    "lastRecord": "最後記錄",
+    "reflections": "反思",
+    "mainSubjects": "主要科目",
+    "today": "今日",
+    "daysAgo": "{n} 日前",
+    "never": "從未",
+    "flagNoRecord": "連續 {n} 日沒有記錄",
+    "flagDrop": "時數較上週下跌超過 {n}%",
+    "flagNoReflection": "本週零反思",
+    "reportTitle": "{name} 的溫習報告",
+    "trend": "時數趨勢",
+    "distribution": "科目分佈",
+    "history": "歷次反思",
+    "comment": "老師評語",
+    "saveComment": "儲存評語",
+    "print": "列印"
+  },
+  "offline": {
+    "offline": "離線中",
+    "pending": "待同步 {n} 日",
+    "retry": "重試",
+    "synced": "已全部同步"
+  },
+  "install": {
+    "prompt": "把溫習日誌加到主畫面，用起來就像一個 app。",
+    "android": "安裝",
+    "ios": "在 Safari 按「分享」→「加至主畫面」",
+    "dismiss": "稍後再說"
+  },
+  "share": {
+    "button": "報給老師",
+    "copied": "已複製，請貼上到 WhatsApp",
+    "manual": "請手動複製以下文字"
+  }
+}
