@@ -1,7 +1,17 @@
 {
-  "app": { "name": "溫習日誌", "loading": "載入中…" },
+  "app": {
+    "name": "溫習日誌",
+    "loading": "載入中…"
+  },
   "login": {
     "title": "溫習日誌",
+    "brandTeam": "STEAM TEAM",
+    "subtitle": "STEAM TEAM · HKDSE {year}",
+    "countdownLabel": "距離 DSE 開考（日）",
+    "tipLogTitle": "今日事",
+    "tipLogBody": "今日畢",
+    "tipHoursTitle": "📈",
+    "tipHoursBody": "記錄你的每一小時",
     "id": "學號",
     "password": "密碼",
     "submit": "登入",
@@ -9,9 +19,16 @@
     "days": "日",
     "errorEmpty": "請輸入學號和密碼",
     "errorWrong": "學號或密碼不正確",
-    "expired": "登入已過期，請重新登入"
+    "expired": "登入已過期，請重新登入",
+    "quoteKicker": "每日一句"
   },
-  "nav": { "calendar": "月曆", "report": "我的週報", "settings": "設定", "class": "全班總覽", "logout": "登出" },
+  "nav": {
+    "calendar": "月曆",
+    "report": "我的週報",
+    "settings": "設定",
+    "class": "全班總覽",
+    "logout": "登出"
+  },
   "calendar": {
     "prev": "上個月",
     "next": "下個月",
@@ -33,7 +50,13 @@
     "errorHours": "時數須介乎 0.25 至 12，且為 0.25 的倍數",
     "errorNoSubject": "請先選擇科目"
   },
-  "mood": { "happy": "開心", "ok": "普通", "tired": "疲累", "frustrated": "沮喪", "fired": "衝勁十足" },
+  "mood": {
+    "happy": "開心",
+    "ok": "普通",
+    "tired": "疲累",
+    "frustrated": "沮喪",
+    "fired": "衝勁十足"
+  },
   "report": {
     "title": "我的週報",
     "weekTotal": "本週總時數",

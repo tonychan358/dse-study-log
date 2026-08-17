@@ -1,7 +1,7 @@
-# DESIGN.md — Warm Editorial
-> Version: 1.0 | Mood: 溫暖、沉思、有質感
-> Reference: The Atlantic, Substack, Readwise, Ness Labs
-> Best for: 部落格、電子報、個人網站、教育文章平台、知識創作
+# DESIGN.md — Bento Grid
+> Version: 1.0 | Mood: 現代、有層次、視覺豐富
+> Reference: Apple iPhone 16 marketing, Linear homepage, Vercel homepage 2024, Craft
+> Best for: 產品落地頁、個人作品集、功能展示頁、SaaS 主頁、AI 產品介紹
 
 ---
 
@@ -9,81 +9,72 @@
 
 ### Backgrounds
 ```
-bg-base:     #FDFBF7   ← warm off-white canvas (never pure white)
-bg-surface:  #F5EFE6   ← warm cream — cards, sidebars
-bg-elevated: #EDE6D9   ← hover rows, selected items, callout blocks
-bg-dark:     #1C1410   ← dark mode headers, dark callouts
+bg-base:     #FFFFFF   ← pure white canvas
+bg-surface:  #FAFAFA   ← bento cells (default)
+bg-elevated: #F4F4F5   ← hover state
+bg-dark:     #09090B   ← dark bento cells (accent contrast)
+bg-accent-1: #F0FDF4   ← green tint cell
+bg-accent-2: #EFF6FF   ← blue tint cell
+bg-accent-3: #FDF4FF   ← purple tint cell
+bg-accent-4: #FFF7ED   ← orange tint cell
 ```
 
-### Primary (Terracotta)
+### Primary (Near-Black)
 ```
-primary-100: #F7DED5
-primary-300: #E8A898
-primary-500: #C4644A   ← PRIMARY — terracotta
-primary-600: #A84F38   ← hover
-primary-700: #8C3E2A   ← pressed, active
+primary:        #09090B   ← near-black, used for dark cells + text
+primary-hover:  #18181B
 ```
 
-### Accent (Sage Green)
+### Accent Palette (Cell-level accent colors — one per cell type)
 ```
-accent-100: #DDE8D8
-accent-300: #A8C49E
-accent-500: #6B9E60   ← sage green accent
-accent-600: #557D4C
+accent-green:   #22C55E   ← success, growth, metrics
+accent-blue:    #3B82F6   ← primary interactive, links
+accent-purple:  #A855F7   ← creative, AI features
+accent-orange:  #F97316   ← energy, notifications
+accent-rose:    #F43F5E   ← alerts, trending
+accent-amber:   #F59E0B   ← highlights, ratings
 ```
 
 ### Text
 ```
-text-primary:   #1C1410   ← near-black warm brown
-text-secondary: #5C4F42   ← warm mid-brown
-text-muted:     #9B8E83   ← placeholder, footnotes
-text-inverse:   #FDFBF7   ← text on dark surfaces
-text-accent:    #C4644A   ← links, emphasized terms
+text-primary:   #09090B   ← near-black
+text-secondary: #52525B   ← zinc-600
+text-muted:     #A1A1AA   ← zinc-400
+text-inverse:   #FFFFFF   ← on dark cells
+text-muted-inv: rgba(255,255,255,0.60)  ← muted on dark cells
 ```
 
 ### Borders
 ```
-border-subtle:  #EDE0D0   ← barely visible dividers
-border-default: #D4C5B2   ← card outlines, input borders
-border-strong:  #B8A897   ← table lines, section separators
-```
-
-### Semantic
-```
-error:   #C4644A   ← same as primary (warm tone)
-success: #6B9E60   ← same as accent
-warning: #C49A2A   ← warm amber
+border-subtle:  #F4F4F5
+border-default: #E4E4E7   ← zinc-200
+border-strong:  #D4D4D8   ← zinc-300
+border-dark:    rgba(255,255,255,0.10)  ← borders on dark cells
 ```
 
 ---
 
 ## Typography
 
-Font families:
-- Heading: Georgia, 'Times New Roman', serif
-- Body: Charter, Georgia, serif (editorial), OR Inter, system-ui, sans-serif (clean version)
-- Mono: JetBrains Mono, monospace
-- Display (optional): 'Playfair Display', Georgia, serif (if using web fonts)
+Font family: Inter, system-ui, sans-serif
+(Optional: 'Geist', Inter — Vercel-inspired)
 
-Note: The primary differentiator is SERIF headings. Body can be serif or sans-serif depending on context.
-
-| Token       | Size    | Weight | Line Height | Letter Spacing | Use Case                          |
-|------------|---------|--------|-------------|----------------|-----------------------------------|
-| display    | 3rem    | 700    | 1.05        | -0.02em        | Article hero, author page         |
-| heading-xl | 2rem    | 700    | 1.10        | -0.02em        | Section title, chapter heading    |
-| heading-lg | 1.5rem  | 600    | 1.20        | -0.01em        | Sub-section, card title           |
-| heading-md | 1.25rem | 600    | 1.25        | 0              | Sidebar section, widget title     |
-| body-lg    | 1.125rem| 400    | 1.80        | 0              | Article lead paragraph            |
-| body       | 1.0625rem| 400   | 1.75        | 0.01em         | Default article body              |
-| body-sm    | 0.9375rem| 400   | 1.65        | 0              | Meta, captions, footnotes         |
-| label      | 0.875rem | 500   | 1.20        | 0.02em         | Tags, nav items (sans-serif)      |
-| label-sm   | 0.75rem  | 500   | 1.20        | 0.04em         | Category tags (CAPS optional)     |
-| button     | 0.9375rem| 500   | 1.20        | 0.01em         | Button labels (sans-serif)        |
-| quote      | 1.25rem  | 400   | 1.65        | 0              | Block quotes (italic, serif)      |
-| mono       | 0.875rem | 400   | 1.65        | 0              | Code blocks                       |
-| eyebrow    | 0.75rem  | 600   | 1.20        | 0.12em         | Section labels (ALL CAPS)         |
-
-Hierarchy: Serif headings → warm brown body → muted metadata. Never use color for hierarchy — only font weight and size.
+| Token       | Size    | Weight | Letter Spacing | Use Case                              |
+|------------|---------|--------|----------------|---------------------------------------|
+| display    | 3.5rem  | 700    | -0.04em        | Hero headline in bento                |
+| heading-xl | 2.25rem | 700    | -0.03em        | Large cell title                      |
+| heading-lg | 1.5rem  | 600    | -0.02em        | Medium cell title                     |
+| heading-md | 1.25rem | 600    | -0.01em        | Small cell title                      |
+| heading-sm | 1rem    | 600    | 0              | Micro cell heading                    |
+| body-lg    | 1rem    | 400    | 0              | Cell description                      |
+| body       | 0.875rem| 400    | 0              | Body text in cells                    |
+| body-sm    | 0.8125rem| 400   | 0              | Caption, metadata                     |
+| label      | 0.875rem | 500   | 0.01em         | Labels, tags                          |
+| label-sm   | 0.75rem  | 500   | 0.02em         | Small tags, counts                    |
+| eyebrow    | 0.75rem  | 600   | 0.08em         | Section labels (ALL CAPS)             |
+| button     | 0.875rem | 600   | 0              | CTA buttons                           |
+| number-lg  | 3rem    | 700    | -0.02em        | Metric numbers, counters              |
+| number-xl  | 4rem    | 700    | -0.03em        | Hero statistics                       |
 
 ---
 
@@ -98,206 +89,244 @@ space-5:  20px
 space-6:  24px
 space-8:  32px
 space-10: 40px
-space-12: 48px
-space-16: 64px
-section:  100px–140px   ← editorial breathes more than average
+section:  80px–120px
+bento-gap: 12px–16px   ← gap between grid cells
+cell-pad:  24px–32px   ← inner padding of bento cells
 ```
-
-Article line length: 65–72 characters (max-width ~700px for body text).
 
 ---
 
 ## Border Radius
 
 ```
-radius-none: 0px    ← blockquotes, code blocks (left-border style)
-radius-xs:   4px    ← tags
-radius-sm:   6px    ← small cards, badges
-radius-md:   8px    ← buttons, inputs
-radius-lg:   12px   ← cards, panels
-radius-xl:   16px   ← modals
-radius-full: 9999px ← pill avatars
+radius-sm:   8px    ← small tags, badges
+radius-md:   12px   ← small bento cells
+radius-lg:   16px   ← standard bento cells (most common)
+radius-xl:   20px   ← large feature cells
+radius-2xl:  24px   ← hero bento, modals
+radius-full: 9999px ← pill tags, avatars, icons
 ```
 
 ---
 
 ## Elevation Model
 
-No blue-tinted or cold shadows — all shadows use warm tones.
-
-- **Level 0** — bg-base (#FDFBF7). Page canvas.
-- **Level 1** — bg-surface (#F5EFE6) + border-subtle. Sidebar, inline panels.
-- **Level 2** — bg-surface + border-default + shadow-warm-sm. Cards, callouts.
-- **Level 3** — bg-elevated + border-strong. Selected/hovered cards.
-- **Level 4** — bg-dark (#1C1410) text-inverse. Dark callout blocks, pull quotes.
+- **Level 0** — bg-base (#FFFFFF). Page canvas.
+- **Level 1** — bg-surface + border-default. Default bento cells.
+- **Level 2** — bg-surface + border-strong + shadow-sm. Hovered cells.
+- **Level 3** — bg-dark or bg-accent. Accent/dark bento cells (no shadow needed — contrast is elevation).
 
 ```
-shadow-warm-sm: 0 2px 8px rgba(140,80,50,0.08)
-shadow-warm-md: 0 4px 16px rgba(140,80,50,0.12)
-shadow-warm-lg: 0 8px 32px rgba(140,80,50,0.16)
+shadow-sm: 0 1px 4px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03)
+shadow-md: 0 4px 12px rgba(0,0,0,0.08)
 ```
+
+---
+
+## The Bento Grid System
+
+### Grid Foundation
+```css
+.bento-grid {
+  display: grid;
+  gap: 12px;                    /* bento-gap */
+  grid-template-columns: repeat(4, 1fr);   /* 4-column default */
+}
+```
+
+### Cell Sizes (by column/row span)
+```
+tiny:     1×1  (1 col, 1 row)  ← single stat, icon block
+small:    2×1  (2 col, 1 row)  ← short text + badge
+medium:   2×2  (2 col, 2 row)  ← feature highlight, chart
+wide:     3×1  (3 col, 1 row)  ← tagline + CTA
+tall:     1×2  (1 col, 2 row)  ← narrow vertical stat
+large:    3×2  (3 col, 2 row)  ← hero feature, screenshot
+full:     4×1  (4 col, 1 row)  ← full-width banner
+hero:     4×2  (4 col, 2 row)  ← above-the-fold hero block
+```
+
+### Responsive Grid Collapse
+```css
+/* Desktop: 4 columns */
+@media (min-width: 1024px) { grid-template-columns: repeat(4, 1fr); }
+/* Tablet: 2 columns */
+@media (min-width: 640px)  { grid-template-columns: repeat(2, 1fr); }
+/* Mobile: 1 column */
+@media (max-width: 639px)  { grid-template-columns: 1fr; }
+```
+
+On mobile: ALL cells become 1×1. No spanning. Order matters — design mobile order intentionally.
 
 ---
 
 ## Components
 
-### Buttons
+### Bento Cells
 
-**`button-primary`** (Terracotta)
-- Background: `{colors.primary-500}` (#C4644A)
+**`cell-default`** (Light, content cell)
+- Background: `{colors.bg-surface}`
+- Border: 1px `{colors.border-default}`
+- Radius: `{radius.lg}` (16px)
+- Padding: `{cell-pad}` (24px)
+- Overflow: hidden
+- Hover → shadow: `{shadow-sm}`, border: border-strong
+
+**`cell-dark`** (Dark contrast cell)
+- Background: `{colors.bg-dark}` (#09090B)
+- Border: 1px `{colors.border-dark}`
+- Radius: `{radius.lg}`
+- Padding: `{cell-pad}`
+- Text: text-inverse
+
+**`cell-accent-{color}`** (Tinted accent cell)
+- Background: `{colors.bg-accent-1/2/3/4}` (green/blue/purple/orange tint)
+- Border: 1px border-default
+- Contains a clear accent-colored element (icon, number, badge)
+
+**`cell-gradient`** (Gradient hero cell)
+- Background: linear-gradient(135deg, primary, accent-blue)
 - Text: white
-- Typography: `{typography.button}`, sans-serif
-- Radius: `{radius.md}`
-- Padding: 10px 22px
-- Hover → background: `{colors.primary-600}`
-
-**`button-secondary`**
-- Background: transparent
-- Text: `{colors.text-primary}`
-- Border: 1.5px `{colors.border-strong}`
-- Radius: `{radius.md}`
-- Padding: 10px 22px
-- Hover → background: `{colors.bg-elevated}`
-
-**`button-ghost`** (text link style)
-- Background: transparent
-- Text: `{colors.text-accent}`
-- Underline: 1px underline on hover
-- No border, no shadow
-
-**`button-subscribe`** (Newsletter CTA)
-- Background: `{colors.bg-dark}` (#1C1410)
-- Text: `{colors.text-inverse}`
-- Typography: `{typography.button}`
-- Radius: `{radius.md}`
-- Padding: 12px 28px
-- Hover → background: #2D2118
-
-### Cards & Content
-
-**`card-article`**
-- Background: `{colors.bg-base}`
-- Border-bottom: 1px `{colors.border-subtle}` (no box, just separator)
-- Padding-bottom: `{space-6}`
-- Image: full-width, border-radius `{radius.sm}`, warm filter optional
-
-**`card-featured`**
-- Background: `{colors.bg-surface}`
-- Border: 1px `{colors.border-default}`
-- Radius: `{radius.lg}`
-- Padding: `{space-6}`
-- Shadow: `{shadow-warm-md}`
-
-**`card-newsletter`** (Subscription box)
-- Background: `{colors.bg-elevated}`
-- Border: 1px `{colors.border-default}`
-- Radius: `{radius.lg}`
-- Padding: `{space-8}`
-- Text-align: center
-
-**`blockquote`**
-- Border-left: 3px solid `{colors.primary-500}`
-- Padding-left: `{space-5}`
-- Typography: `{typography.quote}`, italic
-- Color: `{colors.text-secondary}`
-- Background: transparent
-
-**`callout`** (Note, Insight, Warning)
-- Background: `{colors.bg-surface}`
-- Border-left: 4px solid `{colors.primary-500}` (or accent-500 for tips)
-- Border: 1px `{colors.border-subtle}`
-- Radius: 0 `{radius.md}` `{radius.md}` 0
-- Padding: `{space-4}` `{space-5}`
-
-**`pullquote`** (Large editorial pull quote)
-- Background: `{colors.bg-dark}`
-- Color: `{colors.text-inverse}`
-- Typography: `{typography.heading-lg}`, italic, serif
-- Padding: `{space-8}`
-- Radius: `{radius.md}`
+- Radius: radius-xl
 - No border
 
-### Badges & Tags
+**`cell-image`** (Screenshot/illustration cell)
+- Background: bg-surface
+- Image fills bottom 60-70% of cell (overflow hidden, object-fit: cover)
+- Text header at top: 30-40% of cell
+- Border: 1px border-default
 
-**`tag-category`**
-- Background: `{colors.bg-surface}`
-- Text: `{colors.text-secondary}`
-- Border: 1px `{colors.border-default}`
-- Typography: `{typography.label-sm}`
-- Radius: `{radius.full}`
-- Padding: 3px 10px
-- Hover → border: `{colors.primary-300}`
+### Metric Cells
 
-**`tag-featured`**
-- Background: `{colors.primary-100}`
-- Text: `{colors.primary-700}`
-- Border: 1px `{colors.primary-300}`
-- Typography: `{typography.label-sm}`
-- Radius: `{radius.full}`
+**`metric-card`**
+- Layout: label top, huge number middle, trend badge bottom
+- Label: eyebrow style (CAPS, text-muted)
+- Number: number-xl, font-weight 700, text-primary (or accent color)
+- Trend: `+12%` badge in green/red tint
+- Use for: user counts, revenue, performance stats
 
-**`eyebrow-label`**
-- Text: `{colors.text-muted}`
-- Typography: `{typography.eyebrow}` (ALL CAPS, wide tracking)
-- No background, no border
-- Used above article titles
+**`feature-badge`** (Small "available on" / "trusted by" cell)
+- Row of logos / avatars
+- Label at top, count at bottom (e.g., "10,000+ teams")
+- Typography: body-sm + number-lg
 
-### Reading Progress / Metadata
+### Cards (Non-grid context)
 
-**`reading-meta`** (author + date + reading time)
-- Typography: `{typography.body-sm}`, `{typography.label}`
-- Color: `{colors.text-muted}`
-- Layout: flex row, gap `{space-3}`, divider via `·` character
+**`card-default`**
+- Background: bg-surface
+- Border: 1px border-default
+- Radius: radius-lg
+- Padding: space-6
+- Shadow: none (flat, Bento aesthetic)
+
+### Buttons
+
+**`button-primary`** (Dark)
+- Background: `{colors.primary}` (#09090B)
+- Text: white
+- Typography: button
+- Radius: radius-full (pill shape)
+- Padding: 10px 20px
+- Hover → background: primary-hover
+
+**`button-secondary`** (White)
+- Background: white
+- Text: text-primary
+- Border: 1px border-default
+- Radius: radius-full
+- Padding: 10px 20px
+- Hover → border: border-strong
+
+**`button-icon-round`** (Circle icon button)
+- Background: bg-surface
+- Border: 1px border-default
+- Radius: full
+- Size: 36px × 36px
+- Hover → bg-elevated
+
+### Badges & Pills
+
+**`badge-default`**
+- Background: bg-elevated
+- Text: text-secondary
+- Border: 1px border-default
+- Typography: label-sm
+- Radius: full
+- Padding: 4px 10px
+
+**`badge-accent-{color}`**
+- Background: accent tint (e.g., green-50 for accent-green)
+- Text: accent dark (e.g., green-700)
+- Border: 1px accent at 30% opacity
+- Radius: full
+
+**`pill-eyebrow`** (Section eyebrow)
+- Background: bg-elevated
+- Text: text-muted
+- Typography: eyebrow (CAPS, mono or label)
+- Radius: full
+- Padding: 4px 12px
+- Border: 1px border-default
+- Used ABOVE section headings
+
+### Navigation
+
+**Header:**
+- Background: rgba(255,255,255,0.80) + backdrop-blur(12px)
+- Border-bottom: 1px border-subtle (on scroll)
+- Sticky top
+- Max-width: 1280px, center-aligned
+- Logo + nav links + CTA button
 
 ---
 
 ## Design Principles
 
-### Warmth Through Color Temperature
-- All backgrounds, shadows, and borders use warm-toned neutrals — never cold grays.
-- The page should feel like warm paper, not a screen.
-- Text is near-black warm brown, not pure #000000.
+### The Grid IS the Layout
+- The entire page is made of bento cells. No traditional "hero → features → CTA" section blocks.
+- Cells can be dark, light, or accent-tinted — contrast creates visual rhythm.
+- Vary cell sizes deliberately: alternating large+small creates "visual breathing."
 
-### Serif = Authority
-- Headings use serif fonts. This communicates depth, credibility, and editorial intentionality.
-- Sans-serif is for UI chrome (buttons, labels, navigation) — not for content.
-- Never use sans-serif for the main article body in a full editorial layout.
+### Dark + Light Contrast
+- Dark cells (#09090B) create anchors in an otherwise light grid.
+- Rule of thumb: ~20-30% dark cells, ~70-80% light cells.
+- Dark cells should contain the most important messaging.
 
-### Breathing Room
-- Editorial layouts require MORE whitespace than typical UI.
-- Section spacing is 100–140px. Article sections breathe.
-- Line height is 1.75–1.80 for comfortable long-form reading.
+### Typography in Cells
+- Cells with limited space use ONLY heading + body. No paragraph text.
+- Large cells can include a visual element (screenshot, illustration, chart).
+- Headlines in dark cells are always white. In light cells, near-black.
 
-### Terracotta as a Warm Signal
-- Terracotta (#C4644A) replaces cold blue as the interactive color.
-- Links, CTAs, and focus rings all use terracotta — never blue.
-- Sage green is used as a secondary accent (success, tags, secondary actions).
+### Accent Colors = Cell Personality
+- Each accent color tells a story: green = growth, blue = trust, purple = creativity.
+- One accent color per cell — don't mix accents within a cell.
+- Use accent tint backgrounds (not solid) for light cells. Reserve solid accents for badges/icons.
 
-### Photography Integration
-- Images should feel editorial: slightly warm, not oversaturated.
-- Optional: apply a warm CSS filter (`sepia(10%) saturate(90%)`)
-- Image captions are always `{typography.body-sm}` + `{colors.text-muted}` + centered.
+### Motion (Hover)
+- Cells subtly elevate on hover: `shadow-sm` appears + slight border darkening.
+- Interactive cells (linked): transform scale(1.01) or subtle translate-y(-1px).
+- Avoid heavy animations — the grid should feel stable.
 
 ---
 
 ## Do's and Don'ts
 
 ### Do
-- Use serif fonts for all headings and pull quotes.
-- Maintain 1.75–1.80 line height for body text.
-- Use warm off-white (#FDFBF7) as the page canvas — never pure white.
-- Use generous article max-width (700px) for comfortable reading.
-- Use terracotta (#C4644A) for all links and primary CTAs.
-- Use eyebrow labels (ALL CAPS, wide tracking) above article titles.
-- Use the dark callout (`bg-dark`) for high-impact pull quotes.
+- Use `grid-template-areas` or named placement for predictable layouts.
+- Mix dark and light cells for visual rhythm (about 25% dark).
+- Use `overflow: hidden` on all cells — let content be clipped by the cell boundary.
+- Use circular/pill CTAs — they feel modern and contrast with the rectangular grid cells.
+- Include at least one metric/stat cell with a large number to anchor the grid.
+- Use eyebrow pills (ALL CAPS, small) above section headings.
 
 ### Don't
-- Don't use cold grays (#f5f5f5, #e0e0e0) — everything should feel warm.
-- Don't use blue for any interactive states — terracotta replaces blue entirely.
-- Don't use sans-serif for article body in editorial mode.
-- Don't use shadows with blue tint — use warm brown-tinted shadows only.
-- Don't use gradients — this theme is flat and editorial.
-- Don't use border-radius larger than 16px — editorial feels restrained.
-- Don't put more than one primary CTA per article card.
+- Don't make all cells the same size — the grid feels alive through variety.
+- Don't use more than 3 accent colors in a single bento section.
+- Don't add internal borders between cell content items — cells breathe.
+- Don't use gradients inside cells that already have a dark or accent background.
+- Don't use text larger than display (3.5rem) inside any single cell.
+- Don't mix more than 2 card styles within a single bento row.
+- Don't neglect mobile reflow — test all cells at 1-column single width.
 
 ---
 
@@ -305,29 +334,27 @@ shadow-warm-lg: 0 8px 32px rgba(140,80,50,0.16)
 
 | Breakpoint | Width  | Key Changes                                            |
 |-----------|--------|--------------------------------------------------------|
-| lg        | 1024px | Two-column: main article + sidebar                     |
-| md        | 768px  | Single column; sidebar becomes below-fold              |
-| sm        | 640px  | Article padding reduces; display font scales to 2rem   |
-| xs        | 375px  | Full-width; body font stays at 1rem; no serif on label |
+| xl        | 1280px | 4-col grid, full spans work                            |
+| lg        | 1024px | 3-col grid; 4-col spans become full-width              |
+| md        | 768px  | 2-col grid; large cells become 2-wide max              |
+| sm        | 640px  | 1-col; all cells full width, stacked                   |
+| xs        | 375px  | Full width; cell padding reduces to 16px               |
 
-Article body max-width: 700px. On mobile: full width minus 32px padding.
+Bento gap: 12px on desktop, 8px on mobile.
 
 ---
 
 ## Tailwind Quick Reference
 
 ```
-page-bg:       bg-[#FDFBF7]
-surface:       bg-[#F5EFE6]
-elevated:      bg-[#EDE6D9]
-text-primary:  text-[#1C1410]
-text-muted:    text-[#9B8E83]
-text-accent:   text-[#C4644A]
-border:        border-[#D4C5B2]
-card:          bg-[#F5EFE6] rounded-xl border border-[#D4C5B2]
-blockquote:    border-l-4 border-[#C4644A] pl-5 italic text-[#5C4F42]
-btn-primary:   bg-[#C4644A] hover:bg-[#A84F38] text-white rounded-lg
-tag:           bg-[#F5EFE6] border border-[#D4C5B2] text-[#9B8E83] rounded-full text-xs px-2.5
-eyebrow:       text-xs font-semibold tracking-widest uppercase text-[#9B8E83]
-pullquote:     bg-[#1C1410] text-[#FDFBF7] rounded-xl p-8 italic
+grid:       grid grid-cols-4 gap-3
+cell:       bg-zinc-50 border border-zinc-200 rounded-2xl p-6 overflow-hidden
+cell-dark:  bg-[#09090B] border border-white/10 rounded-2xl p-6
+cell-2col:  col-span-2
+cell-2row:  row-span-2
+btn-dark:   bg-[#09090B] text-white rounded-full text-sm font-semibold px-5 py-2.5
+btn-light:  bg-white border border-zinc-200 text-zinc-900 rounded-full text-sm font-semibold px-5 py-2.5
+badge:      bg-zinc-100 border border-zinc-200 text-zinc-500 rounded-full text-xs font-medium px-2.5 py-1
+eyebrow:    text-xs font-semibold tracking-widest uppercase text-zinc-400
+number-xl:  text-6xl font-bold tracking-tight text-zinc-900
 ```

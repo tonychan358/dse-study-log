@@ -1,8 +1,16 @@
 /*
- * Base stylesheet for dse-study-log.
+ * Base stylesheet for dse-study-log — Bento Grid (see ../DESIGN.md).
  * Rules only — all colour/type/spacing values come from tokens.css.
  * Mobile-first: unqualified rules target the phone; @media (min-width: 720px)
  * widens the layout for teacher/desktop use.
+ *
+ * DESIGN.md's own responsive table has three breakpoints (640/1024/etc) for
+ * a generic marketing bento page. This app already had one working
+ * breakpoint (720px, phone vs teacher/desktop) before the bento restyle, and
+ * every existing view/test relies on it — so the bento system below
+ * collapses DESIGN's 3-tier scheme onto that single existing breakpoint
+ * (2-column bento below 720px, 4-column at/above it) rather than adding new
+ * breakpoints. See bento-restyle-report.md for the full note.
  */
 
 *,
@@ -30,12 +38,14 @@ h1, h2, h3 {
   font-family: var(--font-heading);
   color: var(--text);
   line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   margin: 0 0 var(--gap);
 }
 
-h1 { font-size: 1.75rem; font-weight: 700; }
-h2 { font-size: 1.375rem; font-weight: 600; }
-h3 { font-size: 1.125rem; font-weight: 600; }
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.375rem; }
+h3 { font-size: 1.125rem; }
 
 p { margin: 0 0 var(--gap); }
 
@@ -43,7 +53,7 @@ a {
   color: var(--accent);
 }
 
-/* ---------- Buttons ---------- */
+/* ---------- Buttons (DESIGN.md §Components > Buttons — pill radius) ---------- */
 
 .btn {
   display: inline-flex;
@@ -53,19 +63,20 @@ a {
   min-height: var(--tap);
   min-width: var(--tap);
   padding: 10px 22px;
-  border: 1.5px solid var(--border-strong);
-  border-radius: var(--radius);
-  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--bg);
   color: var(--text);
   font-family: var(--font-body);
   font-size: 0.9375rem;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.2;
   cursor: pointer;
   transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
 .btn:hover {
+  border-color: var(--border-strong);
   background: var(--surface-elevated);
 }
 
@@ -91,7 +102,7 @@ a {
   color: var(--on-danger);
 }
 
-/* ---------- Chips ---------- */
+/* ---------- Chips (DESIGN.md §Badges & Pills — pill radius) ---------- */
 
 .chip {
   display: inline-flex;
@@ -100,8 +111,8 @@ a {
   min-height: var(--tap);
   min-width: var(--tap);
   padding: 8px 16px;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
   background: var(--surface);
   color: var(--text);
   font-family: var(--font-body);
@@ -122,14 +133,20 @@ a {
   font-weight: 600;
 }
 
-/* ---------- Card ---------- */
+/* ---------- Card (DESIGN.md §Components > Bento Cells > cell-default) ---------- */
 
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
+  overflow: hidden;
+  padding: var(--cell-pad);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.card:hover {
   box-shadow: var(--shadow-sm);
-  padding: var(--gap);
+  border-color: var(--border-strong);
 }
 
 /* ---------- Field (label + input) ---------- */
@@ -142,8 +159,8 @@ a {
 }
 
 .field label {
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: 0.75rem;
+  font-weight: 600;
   color: var(--text-secondary);
 }
 
@@ -151,13 +168,18 @@ a {
 .field textarea,
 .field select {
   min-height: var(--tap);
-  padding: 10px 12px;
+  padding: 11px 13px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  background: var(--bg);
+  background: var(--surface);
   color: var(--text);
   font-family: var(--font-body);
   font-size: 1rem;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: var(--muted);
 }
 
 .field textarea {
@@ -250,16 +272,160 @@ a {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   background: var(--surface);
   color: var(--text);
   font-size: 0.8125rem;
   cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
 .calendar-grid > *:hover {
   background: var(--surface-elevated);
+  border-color: var(--border-strong);
+}
+
+/* ---------- Bento grid system (DESIGN.md §The Bento Grid System) ----------
+ * Reusable across screens: login's countdown/stat cells today; calendar,
+ * weekly report, class overview and past-paper screens can reuse the same
+ * .bento/.cell classes instead of inventing new layout each time.
+ *
+ * Mobile (base, <720px): 2 columns — matches the approved login mockup,
+ * which deliberately keeps two small stat cells side by side even on a
+ * phone rather than DESIGN.md's generic "mobile: all cells become 1x1"
+ * (that rule is written for a many-cell marketing page; a 3-cell compact
+ * widget stacking to 1 column would waste vertical space and doesn't match
+ * what SIR approved). .cell-full always spans the whole row at any column
+ * count, so hero/banner cells are unaffected by this choice.
+ * Desktop (≥720px): 4 columns, per DESIGN.md's default grid.
+ */
+
+.bento {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--bento-gap);
+}
+
+.cell {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--cell-pad);
+  overflow: hidden;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.cell:hover {
+  box-shadow: var(--shadow-sm);
+  border-color: var(--border-strong);
+}
+
+/* -- sizes (column span is relative to the grid's current column count,
+      so "half"/"full" stay visually true at both 2-col and 4-col) -- */
+.cell-full { grid-column: 1 / -1; }
+.cell-half { grid-column: span 1; }
+.cell-tiny { grid-column: span 1; }
+.cell-tall { grid-row: span 2; }
+
+/* -- tints (DESIGN.md §Components > Bento Cells) -- */
+.cell-dark {
+  background: var(--cell-dark-bg);
+  border-color: var(--cell-dark-border);
+  color: var(--cell-dark-text);
+}
+
+.cell-dark .cell-label,
+.cell-dark .cell-sub {
+  color: var(--text-muted-inv);
+}
+
+.cell-accent-green  { background: var(--tint-green-bg);  border-color: var(--tint-green-border); }
+.cell-accent-blue   { background: var(--tint-blue-bg);   border-color: var(--tint-blue-border); }
+.cell-accent-purple { background: var(--tint-purple-bg); border-color: var(--tint-purple-border); }
+.cell-accent-orange { background: var(--tint-orange-bg); border-color: var(--tint-orange-border); }
+
+/* -- content helpers (DESIGN.md §Typography — number/heading/body scale) -- */
+.cell-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.cell-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.cell-kicker {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.cell-sub {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+@media (min-width: 720px) {
+  .bento { grid-template-columns: repeat(4, 1fr); }
+  .cell-half   { grid-column: span 2; }
+  .cell-small  { grid-column: span 2; }
+  .cell-medium { grid-column: span 2; grid-row: span 2; }
+  .cell-wide   { grid-column: span 3; }
+  .cell-large  { grid-column: span 3; grid-row: span 2; }
+  .cell-hero   { grid-column: span 4; grid-row: span 2; }
+}
+
+/* ---------- Login screen (DESIGN.md components above, composed to match
+   the approved mockup docs/ui-mockup-login.html) ---------- */
+
+.login-shell {
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto;
+}
+
+.login-top {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: var(--gap);
+}
+
+.login-head {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: var(--gap);
+}
+
+.login-mark {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-lg);
+  background: var(--cell-dark-bg);
+  color: var(--cell-dark-text);
+  display: grid;
+  place-items: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.login-head h1 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.login-subtitle {
+  margin: 2px 0 0;
+  font-size: 0.75rem;
+  color: var(--muted);
 }
 
 /* ---------- Layout container ---------- */

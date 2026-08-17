@@ -1,109 +1,205 @@
 /*
- * Design tokens for dse-study-log — derived from ../DESIGN.md (Warm Editorial).
- * Light values are the theme's literal hex codes where they pass WCAG AA;
- * where they don't (see task-10-report.md §contrast), a nearby shade from the
- * same DESIGN.md swatch (e.g. primary-600 instead of primary-500) is promoted
- * to the base token instead. Decorative-only values (borders, chip fills)
- * keep the literal DESIGN.md hex since non-text UI components only need 3:1.
+ * Design tokens for dse-study-log — derived from ../DESIGN.md (Bento Grid,
+ * v1.0, replaces the earlier Warm Editorial system as of 2026-08-17).
  *
- * Dark theme is NOT specified in DESIGN.md beyond bg-dark/text-inverse — it is
- * derived here to preserve the warm-brown character (never cool/blue-grey)
- * while re-checking every text/background pair against WCAG AA. See report
- * for full derivation notes.
+ * Token NAMES are kept stable from the previous (warm-editorial) file so
+ * app.css and every view module keep working unchanged; only the VALUES
+ * change. New tokens are added for bento-specific things that had no
+ * warm-editorial equivalent: dark/inverted cells, accent-tinted cells,
+ * the fuller radius scale, and bento grid spacing.
+ *
+ * DESIGN.md's literal hex values are used wherever they pass WCAG AA as
+ * real text/button-label pairs. Where a literal value fails (checked by
+ * hand against the WCAG 2.1 contrast formula), a nearby shade from the
+ * same colour family is promoted instead — same technique the previous
+ * warm-editorial tokens.css used. Deviations are called out inline:
+ *   - --muted (zinc-400 #A1A1AA) is ~2.6:1 on white → fails 4.5:1 for real
+ *     text (captions, hints, form labels use it). Promoted to zinc-500
+ *     #71717A (~4.8:1 on --bg / --surface).
+ *   - --danger and the two DESIGN "solid button" accents (rose/green) are
+ *     promoted one step darker (rose-600 / green-700) so white label text
+ *     on a solid button reaches 4.5:1; literal DESIGN hexes fail
+ *     (rose ~3.7:1, green ~2.3:1) for that specific use.
+ *   - Decorative-only values (cell borders, tint backgrounds, focus rings)
+ *     keep DESIGN.md's literal hex — non-text UI components only need 3:1,
+ *     and Bento's whole aesthetic (Linear/Vercel-style near-invisible
+ *     borders) intentionally trades off some border contrast for the
+ *     "flat, breathing" look DESIGN.md's Do's/Don'ts call for.
+ *
+ * DESIGN.md does not specify a dark theme (only bg-dark as one of several
+ * light-theme accent cells). Dark theme is derived here: zinc-900/800 for
+ * surfaces, near-white for text/primary-button, and the "dark hero cell"
+ * inverts to a bright cell (see --cell-dark-bg below) so it keeps its role
+ * as the highest-contrast anchor in the grid even when the page canvas is
+ * already dark.
  *
  * Theme switch: document.documentElement.dataset.theme = 'dark' | 'light'
  */
 
 :root {
   /* Surfaces (DESIGN.md §Colors > Backgrounds) */
-  --bg: #FDFBF7;              /* bg-base — warm off-white canvas, never pure white */
-  --surface: #F5EFE6;         /* bg-surface — cards, sidebars */
-  --surface-elevated: #EDE6D9;/* bg-elevated — hover rows, selected items */
+  --bg: #FFFFFF;              /* bg-base — pure white canvas */
+  --surface: #FAFAFA;         /* bg-surface — default bento cell / card */
+  --surface-elevated: #F4F4F5;/* bg-elevated — hover state */
 
   /* Text (DESIGN.md §Colors > Text) */
-  --text: #1C1410;            /* text-primary — near-black warm brown */
-  --text-secondary: #5C4F42;  /* text-secondary — warm mid-brown */
-  --muted: #736558;           /* darkened from DESIGN.md text-muted #9B8E83 (3.08:1 fails);
-                                  this shade reaches 5.45:1 on --bg / 4.92:1 on --surface */
+  --text: #09090B;            /* text-primary — near-black */
+  --text-secondary: #52525B;  /* text-secondary — zinc-600, ~7.5:1 on --bg */
+  --muted: #71717A;           /* zinc-500 — promoted from DESIGN's text-muted
+                                  #A1A1AA (zinc-400, ~2.6:1, fails as real
+                                  text); this shade reaches ~4.8:1 on --bg
+                                  and --surface. Literal zinc-400 is kept
+                                  as --muted-decorative below for icon-only /
+                                  non-text uses that only need 3:1. */
+  --muted-decorative: #A1A1AA; /* DESIGN's literal text-muted, decorative-only */
+  --text-inverse: #FFFFFF;    /* text-inverse — on dark/accent-dark cells */
+  --text-muted-inv: rgba(255, 255, 255, 0.60); /* text-muted-inv, DESIGN literal */
 
   /* Borders (DESIGN.md §Borders) */
-  --border: #D4C5B2;          /* border-default — card outlines, input borders */
-  --border-subtle: #EDE0D0;   /* border-subtle — barely visible dividers */
-  --border-strong: #B8A897;   /* border-strong — table lines, section separators */
+  --border: #E4E4E7;          /* border-default — card/input/cell outlines */
+  --border-subtle: #F4F4F5;   /* border-subtle — barely visible dividers */
+  --border-strong: #D4D4D8;   /* border-strong — hovered cell border, table lines */
+  --border-dark: rgba(255, 255, 255, 0.10); /* border on dark/accent-dark cells */
 
-  /* Interactive — Terracotta (DESIGN.md §Colors > Primary) */
-  --accent: #A84F38;          /* promoted from primary-500 #C4644A (fails as button/link
-                                  text, see report); this is DESIGN.md's own primary-600 */
-  --accent-hover: #8C3E2A;    /* primary-700 — hover/pressed, per DESIGN.md button spec */
-  --accent-soft: #F7DED5;     /* primary-100 — chip[aria-pressed] fill, tag-featured bg */
-  --accent-line: #C4644A;     /* primary-500 literal hex — decorative use only
-                                  (blockquote border, chip-pressed border): non-text UI
-                                  components need only 3:1, and this reaches 3.86:1 on --bg */
-  --on-accent: #FFFFFF;       /* label colour placed on top of --accent */
+  /* Interactive — Near-black primary (DESIGN.md §Colors > Primary +
+     §Components > Buttons: button-primary is the dark pill, not a colour
+     accent — the approved login mockup uses only black/white + green/orange
+     tints, no blue, so --accent is mapped to DESIGN's "primary" near-black
+     rather than its separate "accent-blue" swatch). */
+  --accent: #09090B;          /* primary — CTA buttons, links, focus rings */
+  --accent-hover: #18181B;    /* primary-hover */
+  --accent-soft: #EFF6FF;     /* bg-accent-2 (blue tint) — used for the
+                                  "selected" chip/pill state, giving chips
+                                  their own accent personality distinct from
+                                  the near-black primary buttons */
+  --accent-line: #3B82F6;     /* accent-blue literal — decorative border for
+                                  the selected/pressed chip state (3:1 use only) */
+  --on-accent: #FFFFFF;       /* label colour on top of --accent */
 
   /* Semantic */
-  --danger: #B23A2A;          /* deviates from DESIGN.md's literal "error = primary-500"
-                                  so destructive actions read distinct from the primary CTA
-                                  and clear 4.5:1 as both text and button label (see report) */
+  --danger: #E11D48;          /* rose-600 — promoted from DESIGN's literal
+                                  accent-rose #F43F5E (white-on-rose is only
+                                  ~3.7:1, fails 4.5:1 for a solid danger
+                                  button/label); this reaches ~4.7:1 */
   --on-danger: #FFFFFF;
-  --success: #557D4C;         /* accent-600 (sage, darkened) — text-safe at 4.59:1 */
-  --success-soft: #DDE8D8;    /* accent-100 — badge backgrounds */
+  --success: #15803D;         /* green-700 — promoted from DESIGN's literal
+                                  accent-green #22C55E for the same reason
+                                  (white-on-green is only ~2.3:1); reaches ~5:1 */
+  --success-soft: #F0FDF4;    /* bg-accent-1 (green tint) — badge/cell backgrounds */
   --on-success: #FFFFFF;
-  --warn: #C49A2A;            /* warning amber, literal DESIGN.md hex — status-bar offline bg */
-  --warn-text: #8A6A1D;       /* darkened amber for inline warning text on --bg (4.88:1) */
-  --on-warn: #1C1410;         /* dark text reads correctly on the light amber --warn (6.92:1) */
+  --warn: #F59E0B;            /* accent-amber, literal DESIGN hex — status-bar
+                                  offline background */
+  --warn-text: #92620A;       /* darkened amber for inline warning text on
+                                  --bg (literal #F59E0B is only ~2.2:1 as text) */
+  --on-warn: #09090B;         /* near-black text on the light amber --warn
+                                  (white-on-amber is only ~2.1:1, fails) */
 
-  /* Shape */
-  --radius: 8px;              /* radius-md — buttons, chips, inputs */
-  --radius-lg: 12px;          /* radius-lg — cards, panels */
+  /* Bento accent tints (DESIGN.md §Colors > Backgrounds + §Components >
+     Bento Cells > cell-accent-{color}) — used by .cell-accent-* below */
+  --tint-green-bg: #F0FDF4;
+  --tint-green-border: #DCFCE7;
+  --tint-blue-bg: #EFF6FF;
+  --tint-blue-border: #DBEAFE;
+  --tint-purple-bg: #FDF4FF;
+  --tint-purple-border: #FAE8FF;
+  --tint-orange-bg: #FFF7ED;
+  --tint-orange-border: #FFEDD5;
+
+  /* Dark/contrast bento cell (DESIGN.md §Components > cell-dark) */
+  --cell-dark-bg: #09090B;
+  --cell-dark-text: #FFFFFF;
+  --cell-dark-border: rgba(255, 255, 255, 0.10);
+
+  /* Shape (DESIGN.md §Border Radius) */
+  --radius-sm: 8px;           /* radius-sm — small tags, badges */
+  --radius: 12px;             /* radius-md — buttons, inputs, small cells */
+  --radius-lg: 16px;          /* radius-lg — standard bento cell / card */
+  --radius-xl: 20px;          /* radius-xl — large feature cells */
+  --radius-2xl: 24px;         /* radius-2xl — hero bento */
+  --radius-full: 9999px;      /* radius-full — pill buttons, badges */
   --gap: 12px;                /* space-3 */
   --tap: 44px;                /* minimum tap target, both axes */
 
-  /* Elevation — warm-tinted shadows only, per DESIGN.md (no cool/blue shadows) */
-  --shadow-sm: 0 2px 8px rgba(140, 80, 50, 0.08);
-  --shadow-md: 0 4px 16px rgba(140, 80, 50, 0.12);
+  /* Bento grid (DESIGN.md §The Bento Grid System) */
+  --bento-gap: 12px;
+  --cell-pad: 20px;           /* within DESIGN's 24-32px range, tightened for
+                                  the app's compact mobile-first cells */
 
-  /* Typography (DESIGN.md §Typography — serif headings, sans-serif UI chrome).
-     No web font is loaded (no CDN, offline-first PWA); system stacks approximate
-     the serif/sans pairing and lead with Traditional-Chinese-aware CJK fallbacks. */
-  --font-heading: Georgia, 'Noto Serif TC', 'Songti TC', 'PMingLiU', serif;
+  /* Elevation (DESIGN.md §Elevation Model) — flat by default, shadow only
+     appears on hover, per "Bento aesthetic: flat, no shadow at rest" */
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  /* Typography (DESIGN.md §Typography). No web font is loaded (no CDN,
+     offline-first PWA); system stacks approximate Inter/Geist with
+     Traditional-Chinese-aware CJK fallbacks. */
+  --font-heading: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang TC',
+    'Microsoft JhengHei', 'Noto Sans TC', sans-serif;
   --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang TC',
     'Microsoft JhengHei', 'Noto Sans TC', sans-serif;
 }
 
 :root[data-theme="dark"] {
-  /* Surfaces — warm dark brown, never neutral/blue-grey */
-  --bg: #1C1410;              /* bg-dark, literal DESIGN.md hex */
-  --surface: #2A2019;         /* lighter warm brown, one step up from --bg for card separation */
-  --surface-elevated: #362A21;
+  /* Surfaces — zinc-950/900/800, never blue-grey (DESIGN has no explicit
+     dark palette; zinc is the same neutral family DESIGN already uses for
+     borders/text, so this stays in-family) */
+  --bg: #09090B;               /* bg-dark, DESIGN's own literal dark swatch */
+  --surface: #18181B;          /* zinc-900 — one step up from --bg for cell separation */
+  --surface-elevated: #27272A; /* zinc-800 */
 
   /* Text */
-  --text: #FDFBF7;            /* text-inverse, literal DESIGN.md hex */
-  --text-secondary: #D9C9BA;  /* light warm tan, 11.25:1 on --bg */
-  --muted: #B8A897;           /* border-strong's hue re-used as muted text, 7.85:1 on --bg */
+  --text: #FAFAFA;             /* near-white */
+  --text-secondary: #D4D4D8;   /* zinc-300, ~13.8:1 on --bg */
+  --muted: #A1A1AA;            /* zinc-400, ~7.4:1 on --bg — DESIGN's literal
+                                   text-muted reads fine here (dark canvas
+                                   inverts the earlier light-theme failure) */
+  --muted-decorative: #71717A;
+  --text-inverse: #09090B;     /* used on the inverted --cell-dark-bg (bright) */
+  --text-muted-inv: rgba(9, 9, 11, 0.60);
 
   /* Borders */
-  --border: #4A3B2E;
-  --border-subtle: #3A2E24;
-  --border-strong: #5C4A3A;
+  --border: #3F3F46;           /* zinc-700 */
+  --border-subtle: #27272A;    /* zinc-800 */
+  --border-strong: #52525B;    /* zinc-600 */
+  --border-dark: rgba(9, 9, 11, 0.10);
 
-  /* Interactive — lightened terracotta so it still reads on a dark canvas */
-  --accent: #E8A898;          /* primary-300 — 9.06:1 on --bg, used for links and button fill */
-  --accent-hover: #DC8A70;
-  --accent-soft: #4A2E22;     /* dark warm brown-red — chip[aria-pressed] fill */
-  --accent-line: #E8A898;     /* same as --accent; needs no separate literal shade here */
-  --on-accent: #1C1410;       /* dark text on the lightened accent (white fails at 2.64:1) */
+  /* Interactive — near-black --accent has no contrast on a dark canvas, so
+     the primary/CTA colour inverts to near-white, mirroring how
+     button-primary on a dark surface would actually be built */
+  --accent: #FAFAFA;
+  --accent-hover: #E4E4E7;
+  --accent-soft: #1E2A3F;      /* dark desaturated blue tint */
+  --accent-line: #60A5FA;      /* lightened accent-blue, ~3:1+ on dark surfaces */
+  --on-accent: #09090B;
 
-  /* Semantic */
-  --danger: #E2705A;          /* 5.79:1 on --bg */
-  --on-danger: #1C1410;       /* white fails at 3.13:1; dark text passes at 5.79:1 */
-  --success: #8FBF82;         /* 8.59:1 on --bg */
-  --success-soft: #2C3A24;
-  --on-success: #1C1410;
-  --warn: #E0B84A;            /* 9.62:1 on --bg */
-  --warn-text: #E0B84A;       /* same shade already reads fine as inline text here */
-  --on-warn: #1C1410;
+  /* Semantic — lightened so each still reads as real text/button label on
+     a dark canvas (dark-mode equivalents of the light-theme promotions above) */
+  --danger: #F87171;           /* red-400, ~6.3:1 on --bg */
+  --on-danger: #09090B;
+  --success: #4ADE80;          /* green-400, ~10.7:1 on --bg */
+  --success-soft: #14251A;
+  --on-success: #09090B;
+  --warn: #FBBF24;             /* amber-400, ~10.9:1 on --bg */
+  --warn-text: #FBBF24;
+  --on-warn: #09090B;
 
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.28);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.34);
+  /* Bento accent tints — darkened/desaturated so they read as "tinted dark
+     cells" rather than clashing bright patches on a dark canvas */
+  --tint-green-bg: #14251A;
+  --tint-green-border: #1F3A2A;
+  --tint-blue-bg: #17233A;
+  --tint-blue-border: #22335A;
+  --tint-purple-bg: #241A33;
+  --tint-purple-border: #38264D;
+  --tint-orange-bg: #2A1D12;
+  --tint-orange-border: #45301C;
+
+  /* Dark cell inverts to the brightest surface in dark theme so it keeps
+     its role as the grid's highest-contrast anchor (see file header note) */
+  --cell-dark-bg: #FAFAFA;
+  --cell-dark-text: #09090B;
+  --cell-dark-border: rgba(9, 9, 11, 0.10);
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.32);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.40);
 }

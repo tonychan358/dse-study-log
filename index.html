@@ -4,6 +4,25 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>溫習日誌</title>
+
+  <!-- PWA manifest half only（無 Service Worker，見 Task 19 才加，理由：
+       app 仍在開發中，SW 快取住舊畫面會俾老師誤以為壞咗）。
+       start_url / scope 刻意用相對路徑 "./"：manifest 的相對 URL 係以
+       manifest 檔案本身所在位置為 base，唔係頁面 URL。manifest.webmanifest
+       喺兩邊部署都放喺 app 根目錄——GitHub Pages 係
+       https://tonychan358.github.io/dse-study-log/manifest.webmanifest，
+       本機開發係 http://localhost:8005/manifest.webmanifest——所以 "./"
+       喺兩邊都會正確解析到各自嘅根目錄，唔使寫死絕對路徑或猜子路徑。 -->
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#09090B">
+
+  <!-- iOS Safari 唔認 manifest 嘅 display:standalone，要另外呢幾個 meta
+       tag 先會喺「加至主畫面」後隱藏網址列、用 standalone 模式打開。 -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="溫習日誌">
+
   <link rel="stylesheet" href="./css/tokens.css">
   <link rel="stylesheet" href="./css/app.css">
 </head>
