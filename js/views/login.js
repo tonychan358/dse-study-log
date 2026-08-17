@@ -1,17 +1,21 @@
 /*
  * 登入畫面 —— 未登入時的唯一畫面。
- * Bento Grid 改版（2026-08-17，見 ../../DESIGN.md）：用 css/app.css 的
- * .bento/.cell 系統砌出 docs/ui-mockup-login.html 核准的版面（logo
- * mark + 標題列、深色倒數 hero cell、兩個色調小 cell、表單），markup
- * 對齊 mockup，但只用既有通用元件（.container/.field/.btn/.btn-primary）
- * 加新的 bento 系統類別，不另外發明版面。
  *
- * 行為完全不變：只係換皮，邏輯（ensurePublicConfig／daysUntil／
- * pickQuote／表單提交）原封不動。#login-quote 喺 mockup 冇畫出嚟（mockup
- * 用兩個固定文案 tip cell 取代咗個位），但語錄係已有嘅真實後端功能
- * （config.quotes_zh/quotes_en），「no behaviour changes」係硬性要求，
- * 所以保留呢個元素：預設 hidden、有資料先出現，跟倒數果吓一樣嘅
- * graceful degrade 手法，唔會喺冇資料時佔位或者令表單走樣。
+ * 2026-08-17 第二輪改版：對齊 SIR 核准嘅 docs/ui-mockup-login.html
+ * （參考佢原本 YY3STEAM_HKDSE app 嘅登入版面）。三項明確指示：
+ *   1.「唔想用黑色」   → hero 由 .cell-dark 換成藍色漸變 .cell-brand
+ *   2.「距離DSE個度想置中」→ 標籤／數字／「日」全部置中（.cell-brand 內建）
+ *   3.「中間每日一句及記錄…改下放既位」→ 兩個色調 cell 由表單上面搬到
+ *      登入掣下面
+ * 另加品牌區塊（第一行學年、第二行計劃名）同底部 credit 行。
+ *
+ * 版面仍然全部用 css/app.css 既有嘅通用元件（.container/.field/.btn/
+ * .btn-primary）加 .bento/.cell 系統，唔另外發明版面；mockup 係靜態
+ * 樣板，只定「樣」，唔定實作（佢啲文案係硬寫嘅假資料）。
+ *
+ * 行為完全不變：邏輯（ensurePublicConfig／daysUntil／pickQuote／表單提交／
+ * 語言主題切換／安裝提示）原封不動。所有依賴後端嘅資料（倒數、學年、
+ * 語錄）一律 graceful degrade：攞唔到就唔顯示，表單照用。
  */
 import { call } from '../api.js';
 import { state, saveSession, applyTheme, loadPublicConfig } from '../state.js';
@@ -38,23 +42,24 @@ function ensurePublicConfig(root) {
   loadPublicConfig().then(() => updateCountdownAndQuote(root));
 }
 
-/** 用最新的 state.config 就地更新倒數 cell／副標題年份／語錄三個節點；
+/** 用最新的 state.config 就地更新倒數 cell／品牌區塊學年／語錄三個節點；
  *  找不到就代表畫面已經導去別處（DOM 已被替換），安靜地什麼都不做——
  *  不是錯誤。 */
 function updateCountdownAndQuote(root) {
   const config = state.config || {};
   const countdownEl = root.querySelector('#login-countdown');
   if (config.dse_start_date && countdownEl) {
-    const days = daysUntil(config.dse_start_date);
-    countdownEl.innerHTML = `<div class="cell-number">${days}</div><div class="cell-label">${t('login.countdownLabel')}</div>`;
+    countdownEl.innerHTML = countdownMarkup(daysUntil(config.dse_start_date));
     countdownEl.hidden = false;
   }
-  const subtitleEl = root.querySelector('#login-subtitle');
-  const year = yearFrom(config.dse_start_date);
-  if (year && subtitleEl) {
-    subtitleEl.textContent = t('login.subtitle', { year });
+  // 品牌區塊第一行：學年範圍。冇 config 就一直收埋（見 schoolYearRange()）。
+  const yearEl = root.querySelector('#login-school-year');
+  const range = schoolYearRange(config.dse_start_date);
+  if (range && yearEl) {
+    yearEl.textContent = t('login.schoolYear', range);
+    yearEl.hidden = false;
   }
-  // 語錄係綠色 cell 的內文；連 kicker 一齊由「固定文案」切換成「每日一句」，
+  // 語錄係藍色 cell 的內文；連 kicker 一齊由「固定文案」切換成「每日一句」，
   // 否則會出現 kicker 寫住固定標題、內文卻係語錄的錯配。
   const quoteEl = root.querySelector('#login-quote');
   const quote = pickQuote(config);
@@ -65,10 +70,33 @@ function updateCountdownAndQuote(root) {
   }
 }
 
+/** 倒數 hero 的內文：標籤 → 數字 → 單位，三行；置中由 .cell-brand 負責。 */
+function countdownMarkup(days) {
+  return `<div class="cell-label">${t('login.countdownLabel')}</div>`
+    + `<div class="cell-number">${days}</div>`
+    + `<div class="cell-unit">${t('login.days')}</div>`;
+}
+
 /** dateStr 的年份（'YYYY-MM-DD' 的前 4 位）；格式不符回傳空字串。 */
 function yearFrom(dateStr) {
   const raw = String(dateStr || '').slice(0, 4);
   return /^\d{4}$/.test(raw) ? raw : '';
+}
+
+/**
+ * 品牌區塊第一行嘅學年範圍，由考試年份推算：DSE 喺學年下學期開考，所以
+ * 應考 {year} 屆 DSE 嘅學年就係 {year-1} - {year}（例：dse_start_date
+ * 係 2027-04-xx → 「2026 - 2027」，同 mockup 一致）。
+ *
+ * 學年**一定**由資料推算，唔可以寫死。攞唔到 config（離線、或者後端未
+ * 通）就回傳 null，呼叫方收埋整行——寧願品牌區塊淨係得第二行計劃名稱，
+ * 都好過印出 'NaN - NaN' 或者一條孤零零嘅「-」。呢個同倒數、語錄用緊
+ * 同一套 graceful degrade：冇資料就唔出現，資料到咗先就地補上。
+ */
+function schoolYearRange(dateStr) {
+  const year = yearFrom(dateStr);
+  if (!year) return null;
+  return { from: Number(year) - 1, to: Number(year) };
 }
 
 /**
@@ -101,12 +129,10 @@ function pickQuote(config) {
 
 export function renderLogin(root) {
   const config = state.config || {};
-  const days = daysUntil(config.dse_start_date);
   const quote = pickQuote(config);
-  const year = yearFrom(config.dse_start_date);
+  const range = schoolYearRange(config.dse_start_date);
   const theme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
   const notice = state.params && state.params.notice;
-  const markLetter = t('app.name').charAt(0);
 
   const showInstallHint = shouldShowInstallHint({
     standalone: isStandalone(),
@@ -117,37 +143,21 @@ export function renderLogin(root) {
   root.innerHTML = `
     <div class="container">
       <div class="login-shell">
-        <div class="login-top">
-          <button type="button" class="btn" id="lang-toggle" aria-label="${t('settings.language')}">${currentLang() === 'zh' ? 'English' : '中文'}</button>
-          <button type="button" class="btn" id="theme-toggle" aria-label="${t('settings.theme')}">${theme === 'dark' ? t('settings.themeLight') : t('settings.themeDark')}</button>
-        </div>
-
-        <div class="login-head">
-          <div class="login-mark" aria-hidden="true">${markLetter}</div>
-          <div>
-            <h1>${t('login.title')}</h1>
-            <p class="login-subtitle" id="login-subtitle">${year ? t('login.subtitle', { year }) : t('login.brandTeam')}</p>
+        <div class="login-bar">
+          <div class="login-brand">
+            <!-- 第一行學年純由 config.dse_start_date 推算，攞唔到就整行收埋，
+                 淨低第二行計劃名稱（見 schoolYearRange()）。 -->
+            <div class="login-brand-year" id="login-school-year"${range ? '' : ' hidden'}>${range ? t('login.schoolYear', range) : ''}</div>
+            <h1 class="login-brand-name">${t('login.title')}</h1>
+          </div>
+          <div class="login-tools">
+            <button type="button" class="btn" id="lang-toggle" aria-label="${t('settings.language')}">${currentLang() === 'zh' ? 'English' : '中文'}</button>
+            <button type="button" class="btn" id="theme-toggle" aria-label="${t('settings.theme')}">${theme === 'dark' ? t('settings.themeLight') : t('settings.themeDark')}</button>
           </div>
         </div>
 
-        <div class="bento" style="margin-bottom:var(--gap);">
-          <div class="cell cell-full cell-dark" id="login-countdown"${config.dse_start_date ? '' : ' hidden'}>
-            <div class="cell-number">${days}</div>
-            <div class="cell-label">${t('login.countdownLabel')}</div>
-          </div>
-          <!-- 語錄住喺綠色 cell 入面，唔另外開一行。原本兩者並存：cell 用
-               固定文案、下面再有一句動態語錄，撞到「淺色主題啱好抽中同一句
-               時睇落似重複、抽中另一句時 cell 就變成無意義填充字」。語錄冇
-               資料（未攞到 config／後端舊版）時，cell 退回固定文案，維持兩
-               格並排的版面，唔會留低一個空位。 -->
-          <div class="cell cell-half cell-accent-green">
-            <div class="cell-kicker">${quote ? t('login.quoteKicker') : t('login.tipLogTitle')}</div>
-            <div class="cell-sub" id="login-quote">${quote || t('login.tipLogBody')}</div>
-          </div>
-          <div class="cell cell-half cell-accent-orange">
-            <div class="cell-kicker">${t('login.tipHoursTitle')}</div>
-            <div class="cell-sub">${t('login.tipHoursBody')}</div>
-          </div>
+        <div class="cell cell-brand login-hero" id="login-countdown"${config.dse_start_date ? '' : ' hidden'}>
+          ${countdownMarkup(daysUntil(config.dse_start_date))}
         </div>
 
         ${notice ? `<p role="status" style="color:var(--muted);">${t(notice)}</p>` : ''}
@@ -165,13 +175,31 @@ export function renderLogin(root) {
           <button type="submit" class="btn btn-primary" style="width:100%;">${t('login.submit')}</button>
         </form>
 
+        <!-- 兩個色調 cell 搬咗落登入掣下面（SIR 指示）。語錄住喺藍色 cell
+             入面，唔另外開一行：原本兩者並存會撞到「抽中同一句時睇落似重
+             複、抽中另一句時 cell 就變成無意義填充字」。語錄冇資料（未攞到
+             config／後端舊版）時，cell 退回固定文案，維持兩格並排的版面，
+             唔會留低一個空位。 -->
+        <div class="bento login-notes">
+          <div class="cell cell-half cell-note cell-accent-blue">
+            <div class="cell-kicker">${quote ? t('login.quoteKicker') : t('login.tipLogTitle')}</div>
+            <div class="cell-sub" id="login-quote">${quote || t('login.tipLogBody')}</div>
+          </div>
+          <div class="cell cell-half cell-note cell-accent-orange">
+            <div class="cell-kicker">${t('login.tipHoursTitle')}</div>
+            <div class="cell-sub">${t('login.tipHoursBody')}</div>
+          </div>
+        </div>
+
         ${showInstallHint ? `
-          <div class="install-hint" style="margin-top:var(--gap);padding:8px 12px;border:1px solid var(--border-subtle);border-radius:var(--radius);background:var(--surface);">
-            <p style="margin:0 0 4px;font-size:0.8125rem;color:var(--text-secondary);">${t('install.prompt')}</p>
-            ${isIos ? `<p style="margin:0 0 6px;font-size:0.8125rem;color:var(--muted);">${t('install.ios')}</p>` : ''}
-            <button type="button" id="install-hint-dismiss" class="btn" style="padding:6px 14px;min-height:36px;font-size:0.8125rem;">${t('install.dismiss')}</button>
+          <div class="install-hint">
+            <p>${t('install.prompt')}</p>
+            ${isIos ? `<p style="color:var(--muted);">${t('install.ios')}</p>` : ''}
+            <button type="button" id="install-hint-dismiss" class="btn" style="margin-top:2px;padding:6px 14px;min-height:36px;font-size:0.8125rem;">${t('install.dismiss')}</button>
           </div>
         ` : ''}
+
+        <p class="login-credit">${t('login.credit')}</p>
       </div>
     </div>
   `;

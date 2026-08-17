@@ -8,6 +8,15 @@
  * warm-editorial equivalent: dark/inverted cells, accent-tinted cells,
  * the fuller radius scale, and bento grid spacing.
  *
+ * 2026-08-17 (login redesign): the primary/CTA colour moves from Bento's
+ * near-black to the BRAND BLUE of the approved login mockup
+ * (docs/ui-mockup-login.html) — SIR's instruction「唔想用黑色」. Token
+ * NAMES are again untouched: only --accent / --accent-hover (and their
+ * dark-theme counterparts) change value, plus a new --brand-* group for
+ * the blue hero cell. DESIGN.md still governs everything else; the blue
+ * is DESIGN.md's own accent-blue family (blue-600 #2563EB), so this is a
+ * re-mapping within the documented palette, not a new colour.
+ *
  * DESIGN.md's literal hex values are used wherever they pass WCAG AA as
  * real text/button-label pairs. Where a literal value fails (checked by
  * hand against the WCAG 2.1 contrast formula), a nearby shade from the
@@ -61,20 +70,32 @@
   --border-strong: #D4D4D8;   /* border-strong — hovered cell border, table lines */
   --border-dark: rgba(255, 255, 255, 0.10); /* border on dark/accent-dark cells */
 
-  /* Interactive — Near-black primary (DESIGN.md §Colors > Primary +
-     §Components > Buttons: button-primary is the dark pill, not a colour
-     accent — the approved login mockup uses only black/white + green/orange
-     tints, no blue, so --accent is mapped to DESIGN's "primary" near-black
-     rather than its separate "accent-blue" swatch). */
-  --accent: #09090B;          /* primary — CTA buttons, links, focus rings */
-  --accent-hover: #18181B;    /* primary-hover */
-  --accent-soft: #EFF6FF;     /* bg-accent-2 (blue tint) — used for the
-                                  "selected" chip/pill state, giving chips
-                                  their own accent personality distinct from
-                                  the near-black primary buttons */
+  /* Interactive — BRAND BLUE primary (DESIGN.md §Colors > Accent Palette >
+     accent-blue family). The approved login mockup makes blue the app's
+     primary colour: blue hero, blue login button, blue brand line. blue-600
+     #2563EB is one step darker than DESIGN's literal accent-blue #3B82F6 —
+     the literal is only ~3.1:1 against white, which fails 4.5:1 for a solid
+     button's white label and for link text; #2563EB reaches ~5.2:1. */
+  --accent: #2563EB;          /* primary — CTA buttons, links, focus rings */
+  --accent-hover: #1D4ED8;    /* primary-hover — blue-700 */
+  --accent-soft: #EFF6FF;     /* bg-accent-2 (blue tint) — "selected" chip/pill state */
   --accent-line: #3B82F6;     /* accent-blue literal — decorative border for
                                   the selected/pressed chip state (3:1 use only) */
-  --on-accent: #FFFFFF;       /* label colour on top of --accent */
+  --on-accent: #FFFFFF;       /* label colour on top of --accent (~5.2:1) */
+
+  /* Brand hero (approved login mockup's countdown cell). The mockup's
+     gradient is #2563EB → #4F79F0; the second stop is too light to carry
+     white text (white on #4F79F0 is only ~4.0:1, and the mockup's
+     rgba(255,255,255,.82) label is ~3.1:1 on it — both fail 4.5:1). Per the
+     promotion convention above, the end stop is moved to the neighbouring
+     indigo-600 #4F46E5 (same "blue leaning violet" direction the mockup
+     takes, ~6.3:1 with white) and the muted label alpha is raised from .82
+     to .92 (~4.6:1 at the gradient's lightest point). */
+  --brand: #2563EB;           /* hero gradient start — same hue as --accent */
+  --brand-2: #4F46E5;         /* hero gradient end — indigo-600 */
+  --on-brand: #FFFFFF;        /* hero number/text (≥5.2:1 across the gradient) */
+  --on-brand-muted: rgba(255, 255, 255, 0.92); /* hero label/unit (≥4.6:1) */
+  --shadow-brand: 0 8px 22px rgba(37, 99, 235, 0.24); /* mockup's blue glow */
 
   /* Semantic */
   --danger: #E11D48;          /* rose-600 — promoted from DESIGN's literal
@@ -163,14 +184,26 @@
   --border-strong: #52525B;    /* zinc-600 */
   --border-dark: rgba(9, 9, 11, 0.10);
 
-  /* Interactive — near-black --accent has no contrast on a dark canvas, so
-     the primary/CTA colour inverts to near-white, mirroring how
-     button-primary on a dark surface would actually be built */
-  --accent: #FAFAFA;
-  --accent-hover: #E4E4E7;
+  /* Interactive — the brand stays blue in dark theme (recognisability), but
+     blue-600 on a near-black canvas is only ~3.9:1, too weak for link text
+     and focus rings. Lightened to blue-400 #60A5FA (~7.8:1 on --bg), with
+     near-black labels on top of solid blue buttons (~7.8:1). */
+  --accent: #60A5FA;
+  --accent-hover: #93C5FD;     /* blue-300 */
   --accent-soft: #1E2A3F;      /* dark desaturated blue tint */
   --accent-line: #60A5FA;      /* lightened accent-blue, ~3:1+ on dark surfaces */
   --on-accent: #09090B;
+
+  /* Brand hero — deliberately NOT inverted. The saturated blue block keeps
+     its identity (and its role as the grid's colour anchor) on a near-black
+     canvas: #2563EB is ~3.9:1 against --bg, well past the 3:1 a non-text UI
+     surface needs, and white-on-gradient contrast is unchanged from light
+     theme because both hero colours are theme-independent. */
+  --brand: #2563EB;
+  --brand-2: #4F46E5;
+  --on-brand: #FFFFFF;
+  --on-brand-muted: rgba(255, 255, 255, 0.92);
+  --shadow-brand: 0 8px 24px rgba(37, 99, 235, 0.38);
 
   /* Semantic — lightened so each still reads as real text/button label on
      a dark canvas (dark-mode equivalents of the light-theme promotions above) */
