@@ -279,6 +279,15 @@ a {
   text-align: center;
 }
 
+/* `display: flex` above beats the UA stylesheet's `[hidden] { display: none }`
+   (author rules win; the UA rule is not !important), so the bar kept occupying
+   a blank 36px strip on EVERY screen even though js/store.js sets
+   `bar.hidden = true` expecting it to disappear. Found while screenshotting
+   T14; the fix belongs to the bar, not to any one screen. */
+.status-bar[hidden] {
+  display: none;
+}
+
 .status-bar[data-offline="true"] {
   background: var(--warn);
   color: var(--on-warn);
@@ -729,6 +738,912 @@ a {
   text-align: center;
   font-size: 0.75rem;
   color: var(--muted);
+}
+
+/* ---------- Calendar screen (T13) ----------
+ * Composed from the components above (.container / .bento / .cell /
+ * .calendar-grid / .btn-icon) to match the approved mockup
+ * docs/ui-mockup-calendar.html. The mockup is a static throwaway (inline
+ * styles, hard-coded data): it settles the LOOK, not the implementation, so
+ * nothing below is copied from its CSS — the values that matter (colours,
+ * radii, tap targets) all come from tokens.css.
+ *
+ * The whole screen is one scrolling column with a FIXED bottom tab bar, so
+ * .cal-shell reserves the tab bar's height (plus the iOS home-indicator
+ * inset) as bottom padding — otherwise the last row of days sits under it.
+ */
+
+.cal-shell {
+  padding-bottom: calc(78px + env(safe-area-inset-bottom, 0px));
+}
+
+/* -- top bar: who you are + language/theme toggles -- */
+
+.cal-bar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--gap);
+  margin-bottom: 14px;
+}
+
+.cal-who {
+  min-width: 0;   /* lets a long name wrap instead of widening the flex row */
+}
+
+.cal-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.cal-sub {
+  font-size: 0.72rem;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.cal-tools {
+  flex: none;
+  display: flex;
+  gap: 7px;
+}
+
+/* -- the two stat cells (month total / streak) -- */
+
+.cal-stats {
+  margin-bottom: 16px;
+}
+
+/* Overrides .cell-brand's hero proportions (26px padding, centred, 3.8rem
+   number) — here the blue cell is a compact stat tile, not a hero. Must stay
+   after .cell-brand in source order: same specificity, order decides. */
+.cal-stat {
+  padding: 13px 14px;
+  text-align: left;
+  border-radius: var(--radius-lg);
+}
+
+.cal-stat-n {
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.cal-stat-l {
+  margin-top: 4px;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.cell-brand .cal-stat-l {
+  color: var(--on-brand-muted);
+}
+
+/* -- month navigation -- */
+
+.cal-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.cal-month {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.cal-navbtn {
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.cal-dow {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 5px;
+}
+
+.cal-dow span {
+  padding: 3px 0;
+  color: var(--muted);
+  font-size: 0.68rem;
+  text-align: center;
+}
+
+/* -- day cells --
+ * .calendar-grid (above) already gives every direct child the 1:1 aspect
+ * ratio, centred flex column and hover transition; these rules only add what
+ * a <button> needs (reset) plus the day-specific decoration.
+ */
+
+.calendar-grid > .cal-day {
+  position: relative;
+  padding: 3px 2px 9px;   /* bottom room for the marker dots */
+  border-color: var(--border-subtle);
+  border-radius: var(--radius);
+  font-family: inherit;
+  overflow: hidden;
+}
+
+/* Higher specificity than `.calendar-grid > *:hover` so hovering a tinted
+   day does not flatten its tint back to the neutral hover grey. */
+.calendar-grid > .cal-day:hover {
+  border-color: var(--border-strong);
+}
+
+.calendar-grid > .cal-day:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.cal-day-num {
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.cal-day-h {
+  color: var(--accent);
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+/* On the two deeper tints the plain accent blue drops below 4.5:1 as small
+   text (~4.3:1 on blue-100, ~3.7:1 on blue-200), so it steps one shade
+   darker — which is exactly what --accent-hover is, in both themes. */
+.cal-day.lv2 .cal-day-h,
+.cal-day.lv3 .cal-day-h {
+  color: var(--accent-hover);
+}
+
+/* Subject name on an exam day. One line, ellipsised — the full name is in
+   the cell's aria-label/title, so truncation never loses information. */
+.cal-day-exam {
+  max-width: 100%;
+  padding: 0 2px;
+  color: var(--cal-exam-text);
+  font-size: 0.55rem;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Mood sits in the corner instead of the centred stack: the stack is the
+   "how much did I study" column and must stay readable at 48px. */
+.cal-day-mood {
+  position: absolute;
+  top: 2px;
+  right: 3px;
+  font-size: 0.6rem;
+  line-height: 1;
+}
+
+.cal-day-marks {
+  position: absolute;
+  right: 0;
+  bottom: 4px;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  gap: 3px;
+}
+
+/* Amber solid dot = a reflection was written that day (approved mockup). */
+.cal-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: var(--radius-full);
+  background: var(--warn);
+}
+
+/* Pending-sync marker. Differs from the reflection dot in SHAPE as well as
+   colour (hollow ring vs solid dot) so it is still distinguishable without
+   colour vision. */
+.cal-dot-pending {
+  width: 7px;
+  height: 7px;
+  border: 1.5px solid var(--text-secondary);
+  background: transparent;
+}
+
+/* Hours tint ramp — the point of the whole screen: a student sees the
+   rhythm of the month without reading a single number. Thresholds live in
+   js/views/calendar.js (TINT_STEPS): <2 h, 2–4 h, ≥4 h. */
+.cal-day.lv1 { background: var(--cal-tint-1); border-color: var(--cal-tint-1); }
+.cal-day.lv2 { background: var(--cal-tint-2); border-color: var(--cal-tint-2); }
+.cal-day.lv3 { background: var(--cal-tint-3); border-color: var(--cal-tint-border); }
+
+.cal-day.is-exam {
+  background: var(--cal-exam-bg);
+  border-color: var(--cal-exam-border);
+}
+
+.cal-day.is-exam .cal-day-num {
+  color: var(--cal-exam-text);
+}
+
+.cal-day.is-out {
+  color: var(--muted);
+  opacity: 0.55;
+}
+
+/* outline (not a thicker border) so the ring never changes the cell's box
+   metrics — a 2px border would nudge the day number by 1px. */
+.cal-day.is-today {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.cal-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 11px;
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
+.cal-legend > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cal-swatch {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+}
+
+.cal-swatch.lv1 { background: var(--cal-tint-1); }
+.cal-swatch.lv2 { background: var(--cal-tint-2); }
+.cal-swatch.lv3 { background: var(--cal-tint-3); }
+
+/* -- bottom tab bar --
+ * Only 日曆 has a destination this round. The other three are NOT `disabled`
+ * buttons on purpose: a disabled button does nothing at all when tapped on a
+ * phone, which reads as broken. They stay tappable, are visibly de-emphasised
+ * and answer with a short "coming soon" toast instead.
+ */
+
+.cal-tabbar {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 15;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 6px 0 calc(8px + env(safe-area-inset-bottom, 0px));
+  background: var(--bg);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.cal-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-height: var(--tap);
+  padding: 4px 2px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 0.66rem;
+  cursor: pointer;
+}
+
+.cal-tab.is-active {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* Inactive-until-built. WCAG 1.4.3 exempts inactive components from the
+   contrast minimum; the opacity is kept moderate (not the mockup's ~0.3) so
+   it still reads as a label rather than a smudge. */
+.cal-tab.is-soon {
+  opacity: 0.6;
+}
+
+.cal-tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.cal-tab-icon {
+  display: inline-flex;
+}
+
+/* Transient "coming soon" feedback, above the tab bar. role="status" so it
+   is announced; auto-hides after ~2s (js/views/calendar.js). */
+.cal-toast {
+  position: fixed;
+  bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  z-index: 20;
+  margin: 0;
+  padding: 8px 16px;
+  transform: translateX(-50%);
+  border-radius: var(--radius-full);
+  background: var(--text);
+  color: var(--bg);
+  box-shadow: var(--shadow-md);
+  font-size: 0.8125rem;
+}
+
+/* ---------- Day editor screen (T14) ----------
+ * Composed from tokens.css to match the approved mockup docs/ui-mockup-day.html.
+ * The mockup is a static throwaway (inline styles, hard-coded data): it settles
+ * the LOOK, not the implementation, so nothing below is copied from its CSS.
+ *
+ * Two deliberate departures from the mockup's numbers, both forced by the
+ * 44px minimum tap target:
+ *   - stepper buttons are 44x44, not the mockup's 34x34. They are the most
+ *     tapped control in the whole app (once per 0.25 h, all year) and are used
+ *     one-handed on a phone; 34px is below every platform's minimum.
+ *   - the subject row's padding tightens to compensate, so a row is still
+ *     roughly the mockup's height.
+ *
+ * The whole screen is one scrolling column with a FIXED bottom action bar, so
+ * .day-shell reserves that bar's height (plus the iOS home-indicator inset) as
+ * bottom padding — otherwise 「清空本日」 sits underneath it.
+ */
+
+.day-shell {
+  padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+}
+
+.day-shell.is-readonly {
+  padding-bottom: var(--gap);   /* no action bar in the teacher's read-only view */
+}
+
+/* -- top bar: back, date, running total -- */
+
+.day-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.day-back {
+  flex: none;
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+/* min-width:0 lets a long date/name wrap instead of widening the flex row. */
+.day-dt {
+  min-width: 0;
+}
+
+.day-dt-main {
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.day-dt-sub {
+  font-size: 0.72rem;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.day-tot {
+  flex: none;
+  margin-left: auto;
+  text-align: right;
+}
+
+.day-tot-n {
+  color: var(--accent);
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.day-tot-l {
+  margin-top: 3px;
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+
+/* -- section headings -- */
+
+.day-sec {
+  margin: 18px 0 8px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+/* -- one row per subject: name + stepper -- */
+
+.day-subjects {
+  display: grid;
+  gap: 8px;
+}
+
+/* A row is now two stacked parts: the always-visible main line (name +
+   stepper + note toggle) and the collapsed note field underneath. */
+.day-row {
+  padding: 6px 6px 6px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.day-row-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.day-row.is-ro {
+  padding: 10px 12px;
+}
+
+/* min-width:0 + anywhere is what keeps 「數學延伸部分單元二」 from pushing the
+   stepper off-screen at 360px: the name wraps to a second line instead. */
+.day-row-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.day-row-h {
+  flex: none;
+  padding-right: 4px;
+  color: var(--accent);
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.day-step {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.day-step-btn {
+  width: var(--tap);
+  height: var(--tap);
+  min-width: var(--tap);
+  min-height: var(--tap);
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--accent);
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.day-step-btn:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-elevated);
+}
+
+.day-step-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* tabular-nums + a fixed min-width so the row does not twitch sideways every
+   time the value goes 1 → 1.25 → 10.5. */
+.day-step-v {
+  min-width: 46px;
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.day-step-v.is-zero {
+  color: var(--muted-decorative);
+}
+
+/* -- per-subject note: collapsed by default --
+ * The note is an OPTIONAL extra, never a step in the flow: the stepper stays
+ * the first thing you see and the easiest thing to hit. The toggle is a quiet
+ * 44x44 icon at the end of the row (no hover affordance — phones have no
+ * hover), and it must show at a glance whether a note already exists, or the
+ * student would have to open all six to find what they wrote.
+ */
+
+.day-note-btn {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap);
+  height: var(--tap);
+  min-width: var(--tap);
+  min-height: var(--tap);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius);
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.day-note-btn:hover {
+  background: var(--surface-elevated);
+  color: var(--text-secondary);
+}
+
+.day-note-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+/* Written-note marker: colour AND a filled dot, so it does not rely on colour
+   vision alone (same reasoning as the calendar's hollow pending ring). */
+.day-note-btn.has-note {
+  color: var(--accent);
+}
+
+.day-note-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--accent);
+  opacity: 0;
+}
+
+.day-note-btn.has-note .day-note-dot {
+  opacity: 1;
+}
+
+.day-note-btn[aria-expanded="true"] {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.day-note-wrap {
+  padding: 8px 6px 4px 0;
+}
+
+.day-note {
+  width: 100%;
+  min-height: var(--tap);
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background: var(--surface-elevated);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.875rem;
+}
+
+.day-note::placeholder {
+  color: var(--muted);
+}
+
+.day-note:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: var(--accent);
+}
+
+/* A note on a 0-hour subject cannot be stored (see js/views/dayEditor.js
+   orphanNoteSubjects). Say so where it happens, not only at save time. */
+.day-note-warn {
+  margin: 6px 0 0;
+  color: var(--warn-text);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+/* Teacher's read-only view: notes are spelled out, not hidden behind a tap. */
+.day-note-ro {
+  margin: 6px 0 0;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+/* -- ad-hoc subject: dashed "add" affordance + the chip picker it opens -- */
+
+.day-add {
+  width: 100%;
+  min-height: var(--tap);
+  margin-top: 8px;
+  padding: 11px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.day-add:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.day-add:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.day-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* -- mood: five square tiles, key stored, emoji only shown -- */
+
+.day-moods {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 7px;
+}
+
+.day-mood {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  aspect-ratio: 1;
+  min-height: var(--tap);
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+/* The mockup marks the chosen mood with a 2px border. An inset shadow paints
+   the same 2px without changing the box metrics — a real 2px border would
+   nudge the emoji by 1px every time the selection moves. */
+.day-mood[aria-pressed="true"] {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+  background: var(--accent-soft);
+}
+
+.day-mood:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.day-mood-label {
+  color: var(--muted);
+  font-size: 0.6rem;
+  line-height: 1.2;
+}
+
+.day-mood[aria-pressed="true"] .day-mood-label {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* The read-only view shows the one chosen mood on its own, so it must not be
+   stretched across a fifth of the row. */
+.is-readonly .day-moods {
+  grid-template-columns: repeat(5, minmax(0, 62px));
+}
+
+/* -- reflection -- */
+
+.day-reflect {
+  width: 100%;
+  min-height: 92px;
+  padding: 12px 14px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  background: var(--surface-elevated);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.95rem;
+  resize: vertical;
+}
+
+.day-reflect::placeholder {
+  color: var(--muted);
+}
+
+.day-reflect:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: var(--accent);
+}
+
+.day-reflect-ro {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: var(--radius-lg);
+  background: var(--surface-elevated);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.day-empty {
+  margin: 0;
+  padding: 14px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+/* Destructive, but not a primary action: full-width text button, danger
+   colour, sitting well below the fold of the editing controls. */
+.day-clear {
+  display: block;
+  width: 100%;
+  min-height: var(--tap);
+  margin-top: 20px;
+  padding: 10px;
+  border: 0;
+  border-radius: var(--radius);
+  background: none;
+  color: var(--danger);
+  font-family: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.day-clear:hover {
+  background: var(--surface-elevated);
+}
+
+.day-clear:focus-visible {
+  outline: 2px solid var(--danger);
+  outline-offset: 2px;
+}
+
+/* -- fixed action bar: save + report to teacher -- */
+
+.day-actions {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 15;
+  display: flex;
+  gap: 9px;
+  padding: 10px var(--gap) calc(12px + env(safe-area-inset-bottom, 0px));
+  background: var(--bg);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.day-actions .btn {
+  min-height: 50px;
+  border-radius: var(--radius-lg);
+}
+
+.day-save {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Secondary to 儲存 but not de-emphasised: this is the feature the teacher
+   asked for by name, so it keeps the brand blue as a tinted outline button. */
+.day-share {
+  flex: none;
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 10px 16px;
+  font-size: 0.9rem;
+}
+
+.day-share:hover {
+  border-color: var(--accent-hover);
+  background: var(--accent-soft);
+}
+
+/* Transient feedback (saved / pending / copied), above the action bar. */
+.day-toast {
+  position: fixed;
+  bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  z-index: 20;
+  max-width: calc(100% - 2 * var(--gap));
+  margin: 0;
+  padding: 8px 16px;
+  transform: translateX(-50%);
+  border-radius: var(--radius-full);
+  background: var(--text);
+  color: var(--bg);
+  box-shadow: var(--shadow-md);
+  font-size: 0.8125rem;
+  text-align: center;
+}
+
+/* Last rung of the share ladder: neither navigator.share nor any clipboard
+   API worked, so the text itself is put on screen, pre-selected. This panel
+   must never be silently skipped — a student who taps 報給老師 and sees
+   nothing happen concludes the app is broken. */
+.day-manual {
+  position: fixed;
+  right: var(--gap);
+  bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+  left: var(--gap);
+  z-index: 25;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg);
+  box-shadow: var(--shadow-md);
+}
+
+.day-manual-note {
+  margin: 0 0 8px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.day-manual-text {
+  width: 100%;
+  min-height: 120px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.day-manual-close {
+  width: 100%;
+  margin-top: 8px;
 }
 
 /* ---------- Layout container ---------- */

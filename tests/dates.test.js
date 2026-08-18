@@ -1,6 +1,8 @@
 import { test, eq } from './assert.js';
-import { hkDateString, hkToday, addDays, monthGrid, weekStartOf, isoWeek, weekdayIndex }
-  from '../js/lib/dates.js';
+import {
+  hkDateString, hkToday, addDays, monthGrid, weekStartOf, isoWeek, weekdayIndex,
+  daysUntil, shiftMonth,
+} from '../js/lib/dates.js';
 
 test('hkDateString：UTC 16:30 已是香港的翌日', () => {
   eq(hkDateString(new Date('2026-07-28T16:30:00Z')), '2026-07-29');
@@ -69,4 +71,25 @@ test('isoWeek 跨年：2027-01-01 屬 2026 年第 53 週', () => {
 test('weekdayIndex 星期一為 1、星期日為 7', () => {
   eq(weekdayIndex('2026-07-27'), 1);
   eq(weekdayIndex('2026-08-09'), 7);
+});
+
+test('daysUntil 數純日曆日數', () => {
+  eq(daysUntil('2027-04-09', '2027-04-01'), 8);
+  eq(daysUntil('2027-01-01', '2026-12-25'), 7);
+});
+
+test('daysUntil 已過期／就係今日／格式不符一律 0（唔可以出 NaN）', () => {
+  eq(daysUntil('2020-04-01', '2026-07-08'), 0);
+  eq(daysUntil('2026-07-08', '2026-07-08'), 0);
+  eq(daysUntil('', '2026-07-08'), 0);
+  eq(daysUntil(undefined, '2026-07-08'), 0);
+  eq(daysUntil('下個月', '2026-07-08'), 0);
+});
+
+test('shiftMonth 跨年進位／退位', () => {
+  eq(shiftMonth('2026-07', 1), '2026-08');
+  eq(shiftMonth('2026-12', 1), '2027-01');
+  eq(shiftMonth('2026-01', -1), '2025-12');
+  eq(shiftMonth('2026-07', 0), '2026-07');
+  eq(shiftMonth('2026-03', -14), '2025-01');
 });

@@ -32,7 +32,7 @@
 import { call } from '../api.js';
 import { state, saveSession, applyTheme, loadPublicConfig } from '../state.js';
 import { loadLang, currentLang, t } from '../i18n.js';
-import { hkToday } from '../lib/dates.js';
+import { daysUntil } from '../lib/dates.js';
 import {
   isStandalone, isIosDevice, isInstallHintDismissed, dismissInstallHint,
   installUiMode, hasInstallPrompt, isInstalledThisSession,
@@ -166,21 +166,9 @@ function schoolYearRange(dateStr) {
   return { from: Number(year) - 1, to: Number(year) };
 }
 
-/**
- * dateStr 與今天（hkToday()）相差的日數，四捨五入至整日。已過期
- * （dateStr <= 今天）回傳 0。兩者皆為 'YYYY-MM-DD'，用 Date.UTC 比較
- * 純日曆日數差，不涉時分秒，香港沒有 DST 所以無邊界誤差之虞。
- */
-function daysUntil(dateStr) {
-  const raw = String(dateStr || '').slice(0, 10);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) return 0;
-  const today = hkToday();
-  if (raw <= today) return 0;
-  const [ty, tm, td] = today.split('-').map(Number);
-  const [ey, em, ed] = raw.split('-').map(Number);
-  const diffMs = Date.UTC(ey, em - 1, ed) - Date.UTC(ty, tm - 1, td);
-  return Math.round(diffMs / 86400000);
-}
+/* daysUntil() 本來喺呢度自己實作一次；T13 月曆頂欄都要同一個倒數，所以
+ * 搬咗去 js/lib/dates.js（純日期邏輯的正屋），行為完全不變：已過期／
+ * 格式不符一律 0。 */
 
 /** 依目前語言，從 config.quotes_zh / quotes_en（JSON 字串）隨機揀一句。 */
 function pickQuote(config) {

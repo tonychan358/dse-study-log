@@ -31,7 +31,11 @@
   <link rel="stylesheet" href="./css/app.css">
 </head>
 <body>
-  <div id="status-bar" class="status-bar" hidden></div>
+  <!-- 離線／待同步狀態列（js/store.js renderStatusBar()）。冇嘢報告時
+       `hidden`，唔會佔位。role="status" + aria-live="polite" 令讀屏軟件
+       喺「轉咗離線」「仲有 N 日未同步」時會讀出嚟，但唔會打斷使用者正
+       打緊嘅嘢。離線樣式睇 css/app.css 的 .status-bar[data-offline="true"]。 -->
+  <div id="status-bar" class="status-bar" role="status" aria-live="polite" hidden></div>
   <main id="app">載入中…</main>
   <script type="module" src="./js/main.js"></script>
 </body>

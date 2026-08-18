@@ -24,6 +24,27 @@ export function addDays(dateStr, n) {
   return fromUtcNoon(toUtcNoon(dateStr) + n * DAY_MS);
 }
 
+/**
+ * 由 today 到 dateStr 之間的日曆日數（純日數，不涉時分秒；香港無 DST，
+ * 故無邊界誤差）。已過期或就是今天一律回傳 0，格式不符亦回傳 0 ——
+ * 呼叫方（登入倒數、月曆頂欄）寧願顯示 0 都好過印出 NaN。
+ */
+export function daysUntil(dateStr, today = hkToday()) {
+  const raw = String(dateStr || '').slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) return 0;
+  if (raw <= today) return 0;
+  return Math.round((toUtcNoon(raw) - toUtcNoon(today)) / DAY_MS);
+}
+
+/** 'YYYY-MM' 加減月份，回傳 'YYYY-MM'（跨年自動進位／退位）。 */
+export function shiftMonth(yearMonth, delta) {
+  const [y, m] = String(yearMonth).split('-').map(Number);
+  const zeroBased = (y * 12 + (m - 1)) + delta;
+  const year = Math.floor(zeroBased / 12);
+  const month = zeroBased - year * 12 + 1;
+  return `${year}-${String(month).padStart(2, '0')}`;
+}
+
 /** 1 = 星期一 … 7 = 星期日 */
 export function weekdayIndex(dateStr) {
   const jsDay = new Date(toUtcNoon(dateStr)).getUTCDay(); // 0 = 星期日

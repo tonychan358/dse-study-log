@@ -126,6 +126,21 @@
   --tint-orange-bg: #FFF7ED;
   --tint-orange-border: #FFEDD5;
 
+  /* Calendar day tints — the three "how many hours" steps of the approved
+     calendar mockup (docs/ui-mockup-calendar.html). They are a sequential
+     ramp inside DESIGN.md's own accent-blue family (blue-50/100/200), i.e.
+     the same family --tint-blue-* already uses, extended by one step so the
+     ramp has a visible top end. Decorative surfaces only (the day number is
+     --text on top of them: ~18:1 on blue-50, ~14:1 on blue-200), so the 3:1
+     non-text rule applies, not 4.5:1. */
+  --cal-tint-1: #EFF6FF;      /* blue-50  — under 2 h */
+  --cal-tint-2: #DBEAFE;      /* blue-100 — 2 to 4 h */
+  --cal-tint-3: #BFDBFE;      /* blue-200 — 4 h and over */
+  --cal-tint-border: #93C5FD; /* blue-300 — outline of the darkest step */
+  --cal-exam-bg: #FEF2F2;     /* rose-50 — exam day cell (mockup) */
+  --cal-exam-border: #FECACA; /* rose-200 */
+  --cal-exam-text: #DC2626;   /* red-600, ~4.8:1 on --cal-exam-bg */
+
   /* Dark/contrast bento cell (DESIGN.md §Components > cell-dark) */
   --cell-dark-bg: #09090B;
   --cell-dark-text: #FFFFFF;
@@ -226,6 +241,20 @@
   --tint-purple-border: #38264D;
   --tint-orange-bg: #2A1D12;
   --tint-orange-border: #45301C;
+
+  /* Calendar day tints — same idea as light theme (one blue ramp, three
+     steps), but built UP from the near-black canvas instead of DOWN from
+     white: on a dark page a light-blue ramp would read as three bright
+     patches, and "more hours" has to mean "more colour", not "brighter".
+     Step 1 matches --tint-blue-bg so a tinted day cell and a tinted bento
+     cell stay in the same family. Near-white --text on step 3 is ~7:1. */
+  --cal-tint-1: #17233A;
+  --cal-tint-2: #1E3358;
+  --cal-tint-3: #2A4A80;
+  --cal-tint-border: #3C63A6;
+  --cal-exam-bg: #34161A;     /* deep rose, same treatment as the tints */
+  --cal-exam-border: #5A2429;
+  --cal-exam-text: #FCA5A5;   /* red-300, ~7.4:1 on --cal-exam-bg */
 
   /* Dark cell inverts to the brightest surface in dark theme so it keeps
      its role as the grid's highest-contrast anchor (see file header note) */
