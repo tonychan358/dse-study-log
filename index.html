@@ -27,16 +27,13 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="夠鐘溫書">
 
-  <link rel="stylesheet" href="./css/tokens.css">
-  <link rel="stylesheet" href="./css/app.css">
+  <!-- 樣式由 src/main.tsx import（Vite 打包）。 -->
+  <script type="module" crossorigin src="./assets/index-B08Mh3Ls.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-BnmQp0Lv.css">
 </head>
 <body>
-  <!-- 離線／待同步狀態列（js/store.js renderStatusBar()）。冇嘢報告時
-       `hidden`，唔會佔位。role="status" + aria-live="polite" 令讀屏軟件
-       喺「轉咗離線」「仲有 N 日未同步」時會讀出嚟，但唔會打斷使用者正
-       打緊嘅嘢。離線樣式睇 css/app.css 的 .status-bar[data-offline="true"]。 -->
-  <div id="status-bar" class="status-bar" role="status" aria-live="polite" hidden></div>
-  <main id="app">載入中…</main>
-  <script type="module" src="./js/main.js"></script>
+  <!-- v2（2026-10）：React 由 src/main.tsx 掛入 #root；離線狀態列改由 React StatusBar 畫。
+       Chart.js／supabase-js 由 npm 打包，SW 清單自動注入，離線一樣攞到。 -->
+  <div id="root">載入中…</div>
 </body>
 </html>
